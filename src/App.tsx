@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Navbar } from "@/components/navbar"
 import { CategoryCarousel } from "@/components/category-carousel"
+import { HighlightEvent } from "@/components/hightlight_event"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -211,6 +212,7 @@ export function App() {
           selectedCategory={selectedCategory}
           onSelectCategory={(cat) => setSelectedCategory(cat)}
         />
+        <HighlightEvent />
 
         {/* Find Events Section */}
         <section id="find-event" className="space-y-6">

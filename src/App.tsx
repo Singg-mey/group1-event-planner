@@ -2,6 +2,8 @@ import * as React from "react"
 import { Navbar } from "@/components/navbar"
 import { CategoryCarousel } from "@/components/category-carousel"
 import { HighlightEvent } from "@/components/hightlight_event"
+import { Quickstart } from "@/components/quickstart"
+import { CurrentEvent, type CurrentEventData } from "@/components/current-event"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -70,33 +72,16 @@ const FEATURED_EVENTS = [
     image: "https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?w=600&auto=format&fit=crop&q=80",
     tags: ["Apsara", "Culture", "Theatre"],
   },
-  {
-    id: "evt_005",
-    title: "Rooftop Sunset DJ Sessions",
-    description: "Sunset-to-midnight electronic DJ sets with 360-degree city views, signature mixology, and vibrant crowd.",
-    category: "Nightlife & Roof",
-    shortCategory: "nightlife",
-    date: "Nov 07, 2026 • 6:00 PM",
-    location: "Street 51, BKK1, Phnom Penh",
-    capacity: "180 attendees",
-    status: "published",
-    image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&auto=format&fit=crop&q=80",
-    tags: ["Rooftop", "DJ Set", "Cocktails"],
-  },
-  {
-    id: "evt_006",
-    title: "Mekong Riverside Eco Clean-Up",
-    description: "Join community volunteers for a morning riverside cleanup, recycling drive, followed by free breakfast.",
-    category: "Community",
-    shortCategory: "community",
-    date: "Nov 14, 2026 • 6:30 AM",
-    location: "Sisowath Quay, Riverside Walkway",
-    capacity: "120 volunteers",
-    status: "published",
-    image: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&auto=format&fit=crop&q=80",
-    tags: ["Volunteering", "Eco", "Clean-up"],
-  },
 ]
+
+const CURRENT_EVENT: CurrentEventData = {
+  title: "Sunset Rooftop Mixer",
+  location: "Street 51, BKK1, Phnom Penh",
+  confirmed: 42,
+  capacity: 50,
+  checklistDone: 6,
+  checklistTotal: 8,
+}
 
 export function App() {
   const [activeItem, setActiveItem] = React.useState("Home")
@@ -165,44 +150,54 @@ export function App() {
         {/* Hero Section */}
         <section
           id="home"
-          className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-primary/10 via-background to-secondary/30 p-8 sm:p-12 lg:p-16 shadow-xs"
+          className="relative overflow-hidden rounded-3xl border border-border/70 bg-linear-to-t from-primary/80 via-primary/30 to-primary/10 dark:from-primary dark:via-primary/40 dark:to-primary/10 p-8 sm:p-12 lg:p-16 shadow-xs"
         >
           <div className="absolute top-0 right-0 -z-10 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
           <div className="absolute bottom-0 left-10 -z-10 h-64 w-64 rounded-full bg-sky-500/10 blur-3xl" />
 
-          <div className="max-w-2xl space-y-4">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-              <Sparkles className="size-3.5" />
-              <span>Next-Gen Event Experience</span>
+          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)]">
+            <div className="max-w-2xl space-y-4">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                <Sparkles className="size-3.5" />
+                <span>Next-Gen Event Experience</span>
+              </div>
+
+              <h1 className="font-heading text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-foreground">
+                Discover & Host <span className="text-primary">Unforgettable</span> Events
+              </h1>
+
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                Find concerts, developer meetups, workshops, and nightlife near you.
+                Or create and manage your own event in minutes with our all-in-one organizer tools.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Button
+                  size="lg"
+                  className="gap-2 rounded-full font-semibold shadow-md shadow-primary/20"
+                  onClick={() => setActiveItem("Find Event")}
+                >
+                  <Search className="size-4" />
+                  Find Events
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="gap-2 rounded-full"
+                  onClick={() => setActiveItem("Create Event")}
+                >
+                  <PlusCircle className="size-4 text-primary" />
+                  Create Event
+                </Button>
+              </div>
             </div>
 
-            <h1 className="font-heading text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-foreground">
-              Discover & Host <span className="text-primary">Unforgettable</span> Events
-            </h1>
-
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-              Find concerts, developer meetups, workshops, and nightlife near you.
-              Or create and manage your own event in minutes with our all-in-one organizer tools.
-            </p>
-
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <Button
-                size="lg"
-                className="gap-2 rounded-full font-semibold shadow-md shadow-primary/20"
-                onClick={() => setActiveItem("Find Event")}
-              >
-                <Search className="size-4" />
-                Find Events
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="gap-2 rounded-full"
-                onClick={() => setActiveItem("Create Event")}
-              >
-                <PlusCircle className="size-4 text-primary" />
-                Create Event
-              </Button>
+            <div className="flex flex-col gap-4">
+              <Quickstart onStart={() => setActiveItem("Create Event")} />
+              <CurrentEvent
+                event={CURRENT_EVENT}
+                onManage={() => setActiveItem("Create Event")}
+              />
             </div>
           </div>
         </section>

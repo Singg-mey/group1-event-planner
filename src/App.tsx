@@ -354,7 +354,7 @@ export function App() {
         </div>
       </section>
 
-      <footer className="border-t border-border/60 bg-[#EFF4FF] py-10">
+      <footer className="border-t border-border/60 bg-[#EFF4FF] py-10 dark:bg-background">
         <Card className="mx-auto max-w-7xl rounded-none border-0 bg-transparent px-4 shadow-none ring-0 sm:px-6 lg:px-8">
           <CardContent className="grid gap-10 px-0 py-0 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
             <div className="space-y-4">

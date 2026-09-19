@@ -28,7 +28,7 @@ const HIGHLIGHT_EVENT = {
 export function HighlightEvent() {
   return (
     <section id="highlight-event">
-      <Card className="overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-[#172a76] via-[#2146ad] to-[#2f73ed] p-0 text-white shadow-2xl shadow-blue-900/20">
+      <Card className="overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-[#172a76] via-[#2146ad] to-[#2f73ed] p-0 text-white shadow-2xl shadow-blue-900/20 lg:min-h-[38rem]">
         <div className="p-5 sm:p-7">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/15 pb-4">
             <div className="flex flex-wrap items-center gap-2">

@@ -350,7 +350,7 @@ export function App() {
           <div className="rounded-2xl border border-border/70 bg-card p-6 space-y-3">
             <div className="flex items-center gap-2 text-primary font-bold">
               <Sparkles className="size-5" />
-              <h3 className="text-base font-semibold">About EventPlanner</h3>
+              <h3 className="text-base font-semibold">About EventLy</h3>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               Built with React 19, TypeScript, Tailwind CSS, and Shadcn UI components. Designed for speed, aesthetic excellence, and responsiveness.

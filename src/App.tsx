@@ -4,6 +4,7 @@ import { CategoryCarousel } from "@/components/category-carousel"
 import { HighlightEvent } from "@/components/hightlight_event"
 import { Quickstart } from "@/components/quickstart"
 import { CurrentEvent, type CurrentEventData } from "@/components/current-event"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardHeader,
@@ -16,9 +17,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import {
-  CalendarDays,
-  MapPin,
-  Users,
   Search,
   PlusCircle,
   Sparkles,
@@ -28,6 +26,7 @@ import {
   Globe2,
   Send,
 } from "lucide-react"
+import { PastEventsSection } from "./components/past-event"
 
 const FEATURED_EVENTS = [
   {
@@ -101,7 +100,7 @@ const CURRENT_EVENT: CurrentEventData = {
 
 export function App() {
   const [activeItem, setActiveItem] = React.useState("Home")
-  const [searchQuery, setSearchQuery] = React.useState("")
+  const [, setSearchQuery] = React.useState("")
   const [selectedCategory, setSelectedCategory] = React.useState<string>("All")
 
   const categories = [
@@ -361,6 +360,7 @@ export function App() {
           </div>
         </section>
 
+            <PastEventsSection/>
         {/* Create Event & About info banner */}
         <section
           id="about"

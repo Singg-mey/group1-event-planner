@@ -267,14 +267,9 @@ export function Navbar({
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
                 <span className="font-heading text-lg font-bold tracking-tight text-foreground">
-                  EventPulse
+                  Evently
                 </span>
-                <Badge
-                  variant="outline"
-                  className="hidden rounded-full border-primary/30 bg-primary/5 px-1.5 py-0 text-[10px] font-semibold text-primary sm:inline-flex"
-                >
-                  PRO
-                </Badge>
+                
               </div>
               <span className="hidden -mt-1 text-[11px] font-medium text-muted-foreground sm:block">
                 Discover & Organize

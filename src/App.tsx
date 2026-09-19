@@ -1,5 +1,6 @@
 import * as React from "react"
 import { Navbar } from "@/components/navbar"
+import { CategoryCarousel } from "@/components/category-carousel"
 import { HighlightEvent } from "@/components/hightlight_event"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,6 +14,7 @@ import {
   Sparkles,
   ArrowRight,
   Filter,
+  X,
 } from "lucide-react"
 
 const FEATURED_EVENTS = [
@@ -20,7 +22,8 @@ const FEATURED_EVENTS = [
     id: "evt_001",
     title: "Phnom Penh Jazz Night",
     description: "An evening of live jazz featuring local and international artists with crafted cocktails.",
-    category: "Music",
+    category: "Music & Concerts",
+    shortCategory: "music",
     date: "Oct 10, 2026 • 7:00 PM",
     location: "Street 240, Daun Penh",
     capacity: "200 attendees",
@@ -30,27 +33,68 @@ const FEATURED_EVENTS = [
   },
   {
     id: "evt_002",
-    title: "Frontend Dev Meetup 2026",
-    description: "Monthly tech gathering for React, TypeScript, and modern web developers to share demos.",
-    category: "Tech",
-    date: "Oct 15, 2026 • 6:30 PM",
-    location: "Online (Google Meet)",
-    capacity: "100 attendees",
+    title: "Street Food & Craft Beer Festival",
+    description: "Taste signature dishes from 30+ local food artisans, craft brew masters, and enjoy live acoustic tunes.",
+    category: "Food & Drink",
+    shortCategory: "food and drink",
+    date: "Oct 12, 2026 • 4:00 PM",
+    location: "Koh Pich (Diamond Island), Phnom Penh",
+    capacity: "800 attendees",
     status: "published",
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop&q=80",
-    tags: ["React 19", "Tailwind", "Vite"],
+    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&auto=format&fit=crop&q=80",
+    tags: ["Street Food", "Craft Beer", "Pop-up"],
   },
   {
     id: "evt_003",
+    title: "Frontend & AI Dev Meetup 2026",
+    description: "Monthly tech gathering for React, TypeScript, AI agents, and modern web developers to share live demos.",
+    category: "Tech & Startups",
+    shortCategory: "tech",
+    date: "Oct 15, 2026 • 6:30 PM",
+    location: "Online & Raintree Cambodia",
+    capacity: "150 attendees",
+    status: "published",
+    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop&q=80",
+    tags: ["React 19", "Tailwind", "AI & ML"],
+  },
+  {
+    id: "evt_004",
     title: "Khmer Classical Dance & Arts",
-    description: "Traditional Apsara dance performance followed by a curated local arts gallery showcase.",
-    category: "Cultural and Arts",
+    description: "Traditional Apsara dance performance followed by a curated local arts gallery showcase and artisan bazaar.",
+    category: "Cultural & Arts",
+    shortCategory: "cultural and arts",
     date: "Oct 24, 2026 • 5:00 PM",
     location: "Chaktomuk Theatre, Sisowath Quay",
     capacity: "300 attendees",
     status: "published",
     image: "https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?w=600&auto=format&fit=crop&q=80",
     tags: ["Apsara", "Culture", "Theatre"],
+  },
+  {
+    id: "evt_005",
+    title: "Rooftop Sunset DJ Sessions",
+    description: "Sunset-to-midnight electronic DJ sets with 360-degree city views, signature mixology, and vibrant crowd.",
+    category: "Nightlife & Roof",
+    shortCategory: "nightlife",
+    date: "Nov 07, 2026 • 6:00 PM",
+    location: "Street 51, BKK1, Phnom Penh",
+    capacity: "180 attendees",
+    status: "published",
+    image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&auto=format&fit=crop&q=80",
+    tags: ["Rooftop", "DJ Set", "Cocktails"],
+  },
+  {
+    id: "evt_006",
+    title: "Mekong Riverside Eco Clean-Up",
+    description: "Join community volunteers for a morning riverside cleanup, recycling drive, followed by free breakfast.",
+    category: "Community",
+    shortCategory: "community",
+    date: "Nov 14, 2026 • 6:30 AM",
+    location: "Sisowath Quay, Riverside Walkway",
+    capacity: "120 volunteers",
+    status: "published",
+    image: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&auto=format&fit=crop&q=80",
+    tags: ["Volunteering", "Eco", "Clean-up"],
   },
 ]
 
@@ -59,11 +103,38 @@ export function App() {
   const [searchQuery, setSearchQuery] = React.useState("")
   const [selectedCategory, setSelectedCategory] = React.useState<string>("All")
 
-  const categories = ["All", "Music", "Tech", "Cultural and Arts"]
+  const categories = [
+    "All",
+    "Music & Concerts",
+    "Food & Drink",
+    "Tech & Startups",
+    "Cultural & Arts",
+    "Nightlife & Roof",
+    "Community",
+  ]
+
+  // Normalizer to link category tags, shortKeys, and display titles seamlessly
+  const normalize = (cat: string) => {
+    const c = cat.toLowerCase().trim()
+    if (c.includes("music") || c.includes("concert")) return "music"
+    if (c.includes("food") || c.includes("drink")) return "food and drink"
+    if (c.includes("tech") || c.includes("startup")) return "tech"
+    if (c.includes("cultur") || c.includes("art")) return "cultural and arts"
+    if (c.includes("night") || c.includes("roof")) return "nightlife"
+    if (c.includes("commun")) return "community"
+    if (c.includes("sport") || c.includes("fit")) return "sports"
+    if (c.includes("workshop") || c.includes("learn")) return "workshops"
+    return c
+  }
 
   const filteredEvents = FEATURED_EVENTS.filter((evt) => {
     const matchesCategory =
-      selectedCategory === "All" || evt.category.toLowerCase().includes(selectedCategory.toLowerCase())
+      selectedCategory === "All" ||
+      normalize(evt.category) === normalize(selectedCategory) ||
+      normalize(evt.shortCategory) === normalize(selectedCategory) ||
+      evt.category.toLowerCase().includes(selectedCategory.toLowerCase()) ||
+      selectedCategory.toLowerCase().includes(evt.shortCategory.toLowerCase())
+
     const matchesSearch =
       !searchQuery.trim() ||
       evt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -71,6 +142,7 @@ export function App() {
       evt.location.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesCategory && matchesSearch
   })
+
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased selection:bg-primary selection:text-primary-foreground">
@@ -135,13 +207,33 @@ export function App() {
           </div>
         </section>
 
+        {/* Browsing Category Carousel with Clickable Hover Cards */}
+        <CategoryCarousel
+          selectedCategory={selectedCategory}
+          onSelectCategory={(cat) => setSelectedCategory(cat)}
+        />
         <HighlightEvent />
 
         {/* Find Events Section */}
         <section id="find-event" className="space-y-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight">Explore Upcoming Events</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl font-bold tracking-tight">Explore Upcoming Events</h2>
+                {selectedCategory !== "All" && (
+                  <Badge variant="secondary" className="gap-1.5 py-1 px-2.5 text-xs font-semibold">
+                    <span className="text-primary font-bold">{selectedCategory}</span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCategory("All")}
+                      className="ml-1 text-muted-foreground hover:text-foreground cursor-pointer"
+                      title="Clear category filter"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">
                 Hand-picked events happening this month
               </p>
@@ -150,17 +242,23 @@ export function App() {
             {/* Category Filter Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
               <Filter className="size-4 text-muted-foreground mr-1 shrink-0" />
-              {categories.map((cat) => (
-                <Button
-                  key={cat}
-                  variant={selectedCategory === cat ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(cat)}
-                  className="rounded-full text-xs font-medium"
-                >
-                  {cat}
-                </Button>
-              ))}
+              {categories.map((cat) => {
+                const isActive =
+                  (selectedCategory === "All" && cat === "All") ||
+                  (cat !== "All" && normalize(selectedCategory) === normalize(cat))
+
+                return (
+                  <Button
+                    key={cat}
+                    variant={isActive ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(isActive && cat !== "All" ? "All" : cat)}
+                    className="rounded-full text-xs font-medium shrink-0"
+                  >
+                    {cat}
+                  </Button>
+                )
+              })}
             </div>
           </div>
 

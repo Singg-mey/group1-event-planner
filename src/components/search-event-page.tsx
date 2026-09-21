@@ -1,0 +1,373 @@
+import * as React from "react"
+import {
+  CalendarRange,
+  ChevronLeft,
+  ChevronRight,
+  List,
+  Search,
+  SlidersHorizontal,
+  ArrowRight,
+} from "lucide-react"
+
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import type { SearchEvent } from "@/types/event"
+
+interface SearchEventsPageProps {
+  events: SearchEvent[]
+  initialCategory?: string
+}
+
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+
+const normalizeCategory = (category: string) => {
+  const value = category.toLowerCase()
+  if (value.includes("music") || value.includes("concert")) return "music"
+  if (value.includes("food") || value.includes("drink")) return "food and drink"
+  if (
+    value.includes("tech") ||
+    value.includes("startup") ||
+    value.includes("hackathon")
+  )
+    return "tech"
+  if (value.includes("art") || value.includes("cultur"))
+    return "cultural and arts"
+  if (value.includes("night") || value.includes("roof")) return "nightlife"
+  return value
+}
+
+export function SearchEventsPage({
+  events,
+  initialCategory = "All Categories",
+}: SearchEventsPageProps) {
+  const [view, setView] = React.useState<"calendar" | "list">("calendar")
+  const [query, setQuery] = React.useState("")
+  const [category, setCategory] = React.useState(initialCategory)
+  const [dateFilter, setDateFilter] = React.useState("Any Date")
+  const [location, setLocation] = React.useState("Any Location")
+  const [monthOffset, setMonthOffset] = React.useState(0)
+  const [showPastEvents, setShowPastEvents] = React.useState(false)
+
+  const month = new Date(2026, 8 + monthOffset, 1)
+  const monthName = month.toLocaleString("en-US", { month: "long" })
+  const year = month.getFullYear()
+  const firstDay = new Date(year, month.getMonth(), 1).getDay()
+  const daysInMonth = new Date(year, month.getMonth() + 1, 0).getDate()
+  const previousMonthDays = new Date(year, month.getMonth(), 0).getDate()
+  const calendarDays = Array.from({ length: 42 }, (_, index) => {
+    const dayNumber = index - firstDay + 1
+    if (dayNumber < 1)
+      return { day: previousMonthDays + dayNumber, current: false }
+    if (dayNumber > daysInMonth)
+      return { day: dayNumber - daysInMonth, current: false }
+    return { day: dayNumber, current: true }
+  })
+
+  const filteredEvents = events.filter((event) => {
+    const searchable =
+      `${event.title} ${event.location} ${event.category}`.toLowerCase()
+    const matchesQuery =
+      !query.trim() || searchable.includes(query.toLowerCase())
+    const matchesCategory =
+      category === "All Categories" ||
+      normalizeCategory(event.category) === normalizeCategory(category)
+    const matchesLocation =
+      location === "Any Location" || event.location.includes(location)
+    return matchesQuery && matchesCategory && matchesLocation
+  })
+  const eventDays = new Set(
+    filteredEvents.map((event) => Number(event.date.slice(4, 6)))
+  )
+  const upcomingEvents = filteredEvents.filter((event) =>
+    event.date.includes("2026")
+  )
+  const pastEvents: SearchEvent[] = []
+  const visibleEvents = showPastEvents ? pastEvents : upcomingEvents
+
+  const changeMonth = (amount: number) =>
+    setMonthOffset((value) => value + amount)
+
+  return (
+    <main className="mx-auto max-w-7xl space-y-5 px-4 py-8 sm:px-6 lg:px-8">
+      <header className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          Find Events
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Discover events created by the community and find something happening
+          near you.
+        </p>
+      </header>
+
+      <div className="grid gap-2 lg:grid-cols-[minmax(15rem,1.7fr)_1fr_1fr_1fr_auto]">
+        <div className="relative">
+          <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search events by name, location, or keyword..."
+            className="h-10 rounded-lg pl-9 text-xs"
+          />
+        </div>
+        <select
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
+          className="h-10 rounded-lg border border-input bg-background px-3 text-xs text-foreground outline-none focus:ring-2 focus:ring-ring/40"
+        >
+          <option>All Categories</option>
+          <option>Music & Concerts</option>
+          <option>Food & Drink</option>
+          <option>Tech & Startups</option>
+          <option>Cultural & Arts</option>
+        </select>
+        <select
+          value={dateFilter}
+          onChange={(event) => setDateFilter(event.target.value)}
+          className="h-10 rounded-lg border border-input bg-background px-3 text-xs text-foreground outline-none focus:ring-2 focus:ring-ring/40"
+        >
+          <option>Any Date</option>
+          <option>This Week</option>
+          <option>This Month</option>
+        </select>
+        <select
+          value={location}
+          onChange={(event) => setLocation(event.target.value)}
+          className="h-10 rounded-lg border border-input bg-background px-3 text-xs text-foreground outline-none focus:ring-2 focus:ring-ring/40"
+        >
+          <option>Any Location</option>
+          <option>Phnom Penh</option>
+          <option>Siem Reap</option>
+          <option>Online</option>
+        </select>
+        <Button className="h-10 gap-2 rounded-lg px-5 text-xs">
+          <Search className="size-3.5" />
+          Search
+        </Button>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="inline-flex w-fit rounded-lg border border-border bg-card p-1">
+          <Button
+            variant={view === "calendar" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setView("calendar")}
+            className="gap-2 rounded-md text-xs"
+          >
+            <CalendarRange className="size-3.5" />
+            Calendar View
+          </Button>
+          <Button
+            variant={view === "list" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setView("list")}
+            className="gap-2 rounded-md text-xs"
+          >
+            <List className="size-3.5" />
+            List View
+          </Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs"
+            onClick={() => setMonthOffset(0)}
+          >
+            Today
+          </Button>
+          <div className="flex items-center rounded-lg border border-border bg-card">
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => changeMonth(-1)}
+              aria-label="Previous month"
+            >
+              <ChevronLeft />
+            </Button>
+            <span className="min-w-32 text-center text-xs font-semibold">
+              {monthName} {year}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => changeMonth(1)}
+              aria-label="Next month"
+            >
+              <ChevronRight />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {view === "calendar" ? (
+        <Card className="rounded-xl border-border/80 shadow-none">
+          <CardContent className="p-4 sm:p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <Button
+                variant="outline"
+                size="icon-sm"
+                onClick={() => changeMonth(-1)}
+                aria-label="Previous month"
+              >
+                <ChevronLeft />
+              </Button>
+              <h2 className="text-sm font-bold">
+                {monthName} {year}
+              </h2>
+              <Button
+                variant="outline"
+                size="icon-sm"
+                onClick={() => changeMonth(1)}
+                aria-label="Next month"
+              >
+                <ChevronRight />
+              </Button>
+            </div>
+            <div className="grid grid-cols-7 text-center text-[10px] font-medium text-muted-foreground">
+              {WEEKDAYS.map((day) => (
+                <span key={day} className="pb-3">
+                  {day}
+                </span>
+              ))}
+              {calendarDays.map(({ day, current }, index) => {
+                const hasEvent = current && eventDays.has(day)
+                const selected = current && day === 18 && monthOffset === 0
+                return (
+                  <div
+                    key={`${day}-${index}`}
+                    className={`relative flex min-h-16 items-start justify-center border-t border-border/40 pt-3 text-xs sm:min-h-20 ${current ? "text-foreground" : "text-muted-foreground/30"}`}
+                  >
+                    <span
+                      className={
+                        selected
+                          ? "flex size-full max-w-24 items-start justify-center rounded-md bg-cyan-500 pt-2 font-semibold text-white"
+                          : ""
+                      }
+                    >
+                      {day}
+                    </span>
+                    {hasEvent && !selected && (
+                      <span className="absolute top-9 size-1 rounded-full bg-primary" />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {filteredEvents.map((event) => (
+            <Card key={event.id} className="overflow-hidden">
+              <div className="flex h-full">
+                <img src={event.image} alt="" className="w-32 object-cover" />
+                <CardContent className="space-y-2 p-4">
+                  <Badge>{event.category}</Badge>
+                  <CardTitle className="text-base">{event.title}</CardTitle>
+                  <p className="text-xs text-muted-foreground">
+                    {event.date} · {event.location}
+                  </p>
+                </CardContent>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <section className="space-y-4" aria-labelledby="event-list-title">
+        <div>
+          <h2
+            id="event-list-title"
+            className="text-lg font-bold tracking-tight"
+          >
+            {showPastEvents ? "Past Events" : "Upcoming Events"}
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            {showPastEvents
+              ? "Look back at events that have already happened."
+              : "Plan ahead with events happening soon in your community."}
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="inline-flex w-fit rounded-lg border border-border bg-card p-1">
+            <Button
+              variant={!showPastEvents ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setShowPastEvents(false)}
+              className="rounded-md text-xs"
+            >
+              Upcoming Events
+            </Button>
+            <Button
+              variant={showPastEvents ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setShowPastEvents(true)}
+              className="rounded-md text-xs"
+            >
+              Past Events
+            </Button>
+          </div>
+          <Button
+            variant="link"
+            size="sm"
+            onClick={() => {
+              setQuery("")
+              setCategory(initialCategory)
+              setDateFilter("Any Date")
+              setLocation("Any Location")
+              setShowPastEvents(false)
+            }}
+            className="w-fit gap-1 px-0 text-xs font-semibold text-primary"
+          >
+            View all
+            <ArrowRight className="size-3.5" />
+          </Button>
+        </div>
+
+        {visibleEvents.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {visibleEvents.map((event) => (
+              <Card
+                key={event.id}
+                className="overflow-hidden border-border/80 shadow-none"
+              >
+                <img
+                  src={event.image}
+                  alt=""
+                  className="h-32 w-full object-cover"
+                />
+                <CardContent className="space-y-2 p-4">
+                  <Badge>{event.category}</Badge>
+                  <CardTitle className="text-base">{event.title}</CardTitle>
+                  <p className="text-xs text-muted-foreground">{event.date}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {event.location}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="border-dashed shadow-none">
+            <CardContent className="flex min-h-24 items-center justify-center p-6 text-center text-sm text-muted-foreground">
+              {showPastEvents
+                ? "No past events found for these filters."
+                : "No upcoming events found for these filters."}
+            </CardContent>
+          </Card>
+        )}
+      </section>
+
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <span>{filteredEvents.length} events found</span>
+        <Button variant="ghost" size="sm" className="gap-2">
+          <SlidersHorizontal className="size-3.5" />
+          More filters
+        </Button>
+      </div>
+    </main>
+  )
+}

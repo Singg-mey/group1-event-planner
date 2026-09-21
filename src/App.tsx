@@ -13,7 +13,6 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import {
@@ -25,6 +24,9 @@ import {
   X,
   Globe2,
   Send,
+  CalendarDays,
+  MapPin,
+  Users,
 } from "lucide-react"
 import { PastEventsSection } from "./components/past-event"
 
@@ -100,7 +102,7 @@ const CURRENT_EVENT: CurrentEventData = {
 
 export function App() {
   const [activeItem, setActiveItem] = React.useState("Home")
-  const [, setSearchQuery] = React.useState("")
+  const [searchQuery, setSearchQuery] = React.useState("")
   const [selectedCategory, setSelectedCategory] = React.useState<string>("All")
 
   const categories = [

@@ -48,14 +48,16 @@ const FEATURED_EVENTS = [
   {
     id: "evt_002",
     title: "Street Food & Craft Beer Festival",
-    description: "Taste signature dishes from 30+ local food artisans, craft brew masters, and enjoy live acoustic tunes.",
+    description:
+      "Taste signature dishes from 30+ local food artisans, craft brew masters, and enjoy live acoustic tunes.",
     category: "Food & Drink",
     shortCategory: "food and drink",
     date: "Oct 12, 2026 • 4:00 PM",
     location: "Koh Pich (Diamond Island), Phnom Penh",
     capacity: "800 attendees",
     status: "published",
-    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&auto=format&fit=crop&q=80",
+    image:
+      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&auto=format&fit=crop&q=80",
     tags: ["Street Food", "Craft Beer", "Pop-up"],
   },
   {
@@ -133,7 +135,6 @@ export function App() {
       selectedCategory === "All" ||
       normalize(evt.category) === normalize(selectedCategory) ||
       normalize(evt.shortCategory) === normalize(selectedCategory) ||
-     
       evt.category.toLowerCase().includes(selectedCategory.toLowerCase()) ||
       selectedCategory.toLowerCase().includes(evt.shortCategory.toLowerCase())
 
@@ -144,7 +145,6 @@ export function App() {
       evt.location.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesCategory && matchesSearch
   })
-
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased selection:bg-primary selection:text-primary-foreground">
@@ -163,31 +163,31 @@ export function App() {
         onSearch={(query) => setSearchQuery(query)}
       />
 
-      <main className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl space-y-8 px-4 py-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <section
           id="home"
-          className="relative overflow-hidden rounded-3xl border border-border/70 bg-linear-to-t from-primary/80 via-primary/30 to-primary/10 dark:from-primary dark:via-primary/40 dark:to-primary/10 p-8 shadow-xs sm:p-12 lg:p-16"
+          className="relative overflow-hidden rounded-3xl border border-border/70 bg-linear-to-t from-primary/80 via-primary/30 to-primary/10 p-3 shadow-xs sm:p-4 lg:p-6 dark:from-primary dark:via-primary/40 dark:to-primary/10"
         >
-          <div className="absolute top-0 right-0 -z-10 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
-          <div className="absolute bottom-0 left-10 -z-10 h-64 w-64 rounded-full bg-sky-500/10 blur-3xl" />
+          <div className="absolute top-0 right-0 -z-10 h-48 w-48 rounded-full bg-primary/15 blur-3xl" />
+          <div className="absolute bottom-0 left-10 -z-10 h-40 w-40 rounded-full bg-sky-500/10 blur-3xl" />
 
-          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)]">
-            <div className="max-w-2xl space-y-4">
+          <div className="grid items-center gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)]">
+            <div className="max-w-2xl space-y-3">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                 <Sparkles className="size-3.5" />
                 <span>Next-Gen Event Experience</span>
               </div>
 
-              <h1 className="font-heading text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+              <h1 className="font-heading text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-5xl">
                 Discover & Host{" "}
-              <span className="text-primary">Unforgettable</span> Events
+                <span className="text-primary">Unforgettable</span> Events
               </h1>
 
               <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
                 Find concerts, developer meetups, workshops, and nightlife near
                 you. Or create and manage your own event in minutes with our
-              all-in-one organizer tools.
+                all-in-one organizer tools.
               </p>
 
               <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -211,7 +211,7 @@ export function App() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
               <Quickstart onStart={() => setActiveItem("Create Event")} />
               <CurrentEvent
                 event={CURRENT_EVENT}
@@ -234,15 +234,20 @@ export function App() {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-2xl font-bold tracking-tight">
-                Explore Upcoming Events
-              </h2>
+                  Explore Upcoming Events
+                </h2>
                 {selectedCategory !== "All" && (
-                  <Badge variant="secondary" className="gap-1.5 py-1 px-2.5 text-xs font-semibold">
-                    <span className="text-primary font-bold">{selectedCategory}</span>
+                  <Badge
+                    variant="secondary"
+                    className="gap-1.5 px-2.5 py-1 text-xs font-semibold"
+                  >
+                    <span className="font-bold text-primary">
+                      {selectedCategory}
+                    </span>
                     <button
                       type="button"
                       onClick={() => setSelectedCategory("All")}
-                      className="ml-1 text-muted-foreground hover:text-foreground cursor-pointer"
+                      className="ml-1 cursor-pointer text-muted-foreground hover:text-foreground"
                       title="Clear category filter"
                     >
                       <X className="size-3" />
@@ -261,15 +266,20 @@ export function App() {
               {categories.map((cat) => {
                 const isActive =
                   (selectedCategory === "All" && cat === "All") ||
-                  (cat !== "All" && normalize(selectedCategory) === normalize(cat))
+                  (cat !== "All" &&
+                    normalize(selectedCategory) === normalize(cat))
 
                 return (
                   <Button
                     key={cat}
                     variant={isActive ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setSelectedCategory(isActive && cat !== "All" ? "All" : cat)}
-                    className="rounded-full text-xs font-medium shrink-0"
+                    onClick={() =>
+                      setSelectedCategory(
+                        isActive && cat !== "All" ? "All" : cat
+                      )
+                    }
+                    className="shrink-0 rounded-full text-xs font-medium"
                   >
                     {cat}
                   </Button>
@@ -404,7 +414,7 @@ export function App() {
       </main>
 
       <section
-        className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8"
+        className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"
         aria-labelledby="newsletter-title"
       >
         <div className="flex flex-col gap-8 rounded-2xl bg-primary px-8 py-9 text-primary-foreground shadow-lg shadow-primary/15 md:flex-row md:items-center md:justify-between md:px-9 lg:px-10">
@@ -450,7 +460,7 @@ export function App() {
         </div>
       </section>
 
-      <footer className="border-t border-border/60 bg-[#EFF4FF] py-10 dark:bg-background">
+      <footer className="border-t border-border/60 bg-[#EFF4FF]  dark:bg-background">
         <Card className="mx-auto max-w-7xl rounded-none border-0 bg-transparent px-4 shadow-none ring-0 sm:px-6 lg:px-8">
           <CardContent className="grid gap-10 px-0 py-0 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
             <div className="space-y-4">
@@ -503,7 +513,7 @@ export function App() {
             />
           </CardContent>
 
-          <div className="mt-9 flex flex-col gap-3 border-t border-border/60 pt-5 text-[11px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-4 flex flex-col gap-3 border-t border-border/60 pt-2 text-[11px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <p>
               © 2025 EventPlanner Cambodia. Connecting communities across the
               Kingdom of Wonder.

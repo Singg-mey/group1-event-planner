@@ -10,4 +10,6 @@ export interface SearchEvent {
   status: string
   image: string
   tags: string[]
+  rating?: number
+  reviewCount?: number
 }

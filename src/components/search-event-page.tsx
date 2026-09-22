@@ -7,12 +7,14 @@ import {
   Search,
   SlidersHorizontal,
   ArrowRight,
+  Info,
   MapPin,
 } from "lucide-react"
+import { Link } from "react-router-dom"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { SearchEvent } from "@/types/event"
 
@@ -112,10 +114,12 @@ export function SearchEventsPage({
   const selectedEvent = filteredEvents.find(
     (event) => event.id === selectedEventId
   )
-  const upcomingEvents = filteredEvents.filter((event) =>
-    event.date.includes("2026")
+  const pastEvents = filteredEvents.filter(
+    (event) => event.status === "CONCLUDED"
   )
-  const pastEvents: SearchEvent[] = []
+  const upcomingEvents = filteredEvents.filter(
+    (event) => event.status !== "CONCLUDED"
+  )
   const visibleEvents = showPastEvents ? pastEvents : upcomingEvents
 
   const changeMonth = (amount: number) => {
@@ -471,13 +475,25 @@ export function SearchEventsPage({
                   alt=""
                   className="h-32 w-full object-cover"
                 />
-                <CardContent className="space-y-2 p-4">
+                <CardContent className="flex flex-1 flex-col space-y-2 p-4">
                   <Badge>{event.category}</Badge>
                   <CardTitle className="text-base">{event.title}</CardTitle>
                   <p className="text-xs text-muted-foreground">{event.date}</p>
                   <p className="truncate text-xs text-muted-foreground">
                     {event.location}
                   </p>
+                  <Link
+                    to={`/events/${event.id}`}
+                    state={{ activeItem: "Find Event" }}
+                    className={buttonVariants({
+                      variant: "outline",
+                      size: "sm",
+                      className: "mt-auto w-full gap-1.5 text-xs",
+                    })}
+                  >
+                    <Info className="size-3.5" />
+                    Event detail
+                  </Link>
                 </CardContent>
               </Card>
             ))}

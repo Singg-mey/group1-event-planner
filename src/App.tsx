@@ -31,6 +31,7 @@ import {
   Users,
 } from "lucide-react"
 import { PastEventsSection } from "./components/past-event"
+import { CreateEvent, type CreateEventValues } from "./components/create-event"
 import { Footer } from "@/components/footer"
 
 const FEATURED_EVENTS: SearchEvent[] = [
@@ -111,6 +112,8 @@ export function App() {
     React.useState("All Categories")
   const [searchQuery, setSearchQuery] = React.useState("")
   const [selectedCategory, setSelectedCategory] = React.useState<string>("All")
+  const [createEventValues, setCreateEventValues] =
+    React.useState<CreateEventValues>()
   const location = useLocation()
 
   // After arriving from another page, scroll to the target section hash (or top)
@@ -197,6 +200,8 @@ export function App() {
           events={FEATURED_EVENTS}
           initialCategory={selectedEventType}
         />
+      ) : activeItem === "Create Event" ? (
+        <CreateEvent initialValues={createEventValues} />
       ) : (
         <main className="mx-auto max-w-7xl space-y-8 px-4 py-4 sm:px-6 lg:px-8">
           {/* Hero Section */}
@@ -247,7 +252,12 @@ export function App() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Quickstart onStart={() => setActiveItem("Create Event")} />
+                <Quickstart
+                  onStart={(values) => {
+                    setCreateEventValues(values)
+                    setActiveItem("Create Event")
+                  }}
+                />
                 <CurrentEvent
                   event={CURRENT_EVENT}
                   onManage={() => setActiveItem("Create Event")}

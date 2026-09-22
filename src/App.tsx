@@ -198,14 +198,6 @@ export function App() {
           >
             <div className="absolute top-0 right-0 -z-10 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
             <div className="absolute bottom-0 left-10 -z-10 h-64 w-64 rounded-full bg-sky-500/10 blur-3xl" />
-      <main className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 lg:px-8">
-            {/* Hero Section */}
-        <section
-          id="home"
-          className="relative w-full overflow-hidden rounded-3xl border border-border/70 bg-linear-to-t from-primary/80 via-primary/30 to-primary/10 p-8 shadow-xs dark:from-primary dark:via-primary/40 dark:to-primary/10 sm:p-12 lg:min-h-[38rem] lg:p-14"
-        >
-          <div className="absolute top-0 right-0 -z-10 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
-          <div className="absolute bottom-0 left-10 -z-10 h-64 w-64 rounded-full bg-sky-500/10 blur-3xl" />
 
             <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)]">
               <div className="max-w-2xl space-y-4">

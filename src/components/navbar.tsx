@@ -1,6 +1,27 @@
 import * as React from "react"
-import { useLocation, useNavigate } from "react-router-dom"
-import { CalendarPlus, Menu, X } from "lucide-react"
+import {
+  CalendarDays,
+  Search,
+  Sparkles,
+  Ticket,
+  Bookmark,
+  CalendarPlus,
+  Settings,
+  LogOut,
+  User,
+  Music,
+  Laptop,
+  Palette,
+  Utensils,
+  Moon,
+  Sun,
+  Monitor,
+  Menu,
+  X,
+  Compass,
+  ChevronRight,
+  HelpCircle,
+} from "lucide-react"
 import { cn } from "cn"
 
 import {
@@ -31,6 +52,7 @@ import {
 } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { useTheme } from "@/components/theme-provider"
 
 export interface NavUser {
@@ -149,24 +171,6 @@ const CREATE_OPTIONS = [
     href: "#create-templates",
   },
 ]
-import { Brand } from "./navbar/brand"
-import { DesktopNav } from "./navbar/desktop-nav"
-import { MobileMenu } from "./navbar/mobile-menu"
-import { ProfileMenu } from "./navbar/profile-menu"
-import { SearchBar } from "./navbar/search-bar"
-import type { NavItemClick, NavUser, NavbarProps } from "./navbar/types"
-
-export type { NavUser, NavbarProps } from "./navbar/types"
-
-const DEFAULT_USER: NavUser = {
-  name: "Alex Morgan",
-  email: "alex.morgan@eventplanner.io",
-  avatarUrl:
-    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-  role: "Event Organizer",
-  ticketsCount: 3,
-}
-
 export function Navbar({
   user = {
     name: "Alex Morgan",
@@ -182,59 +186,39 @@ export function Navbar({
   className,
 }: NavbarProps) {
   const [searchQuery, setSearchQuery] = React.useState("")
+  const [isSearchFocused, setIsSearchFocused] = React.useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
+  const searchInputRef = React.useRef<HTMLInputElement>(null)
+  const searchContainerRef = React.useRef<HTMLDivElement>(null)
 
   const { theme, setTheme } = useTheme()
-  const navigate = useNavigate()
-  const location = useLocation()
 
-  const updateSearch = (value: string) => {
-    setSearchQuery(value)
-    if (onSearch) onSearch(value)
-  }
-
-  const scrollToHash = (hash: string) => {
-    const el = document.querySelector(hash)
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" })
-    } else {
-      window.scrollTo({ top: 0, behavior: "smooth" })
-    }
-  }
-
-  const handleItemClick: NavItemClick = (name, href, e) => {
-    e?.preventDefault()
+  const handleItemClick = (name: string, href?: string) => {
     if (onNavigate) onNavigate(name)
     setMobileMenuOpen(false)
-
-    // Pages with dedicated routes
-    const routeMap: Record<string, string> = {
-      Profile: "/profile",
-      About: "/about",
-    }
-    const route = routeMap[name]
-    if (route) {
-      if (location.pathname === route) {
-        window.scrollTo({ top: 0, behavior: "smooth" })
-      } else {
-        navigate(route)
-        window.scrollTo({ top: 0 })
+    if (href && href.startsWith("#")) {
+      const el = document.querySelector(href)
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" })
       }
-      return
-    }
-
-    // Home-page anchors / sections
-    const homeHash = href && href.startsWith("#") ? href : undefined
-    if (location.pathname === "/") {
-      if (homeHash) {
-        scrollToHash(homeHash)
-      } else {
-        window.scrollTo({ top: 0, behavior: "smooth" })
-      }
-    } else {
-      navigate(homeHash ? `/${homeHash}` : "/")
     }
   }
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value
+    setSearchQuery(value)
+    onSearch?.(value)
+  }
+
+  const filteredEvents = SAMPLE_SEARCH_EVENTS.filter((event) => {
+    const query = searchQuery.toLowerCase()
+    return (
+      query &&
+      [event.title, event.category, event.location, event.badge].some((value) =>
+        value.toLowerCase().includes(query)
+      )
+    )
+  })
 
   return (
     <header

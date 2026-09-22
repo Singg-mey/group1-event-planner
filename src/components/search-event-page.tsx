@@ -7,6 +7,7 @@ import {
   Search,
   SlidersHorizontal,
   ArrowRight,
+  MapPin,
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -21,6 +22,15 @@ interface SearchEventsPageProps {
 }
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+
+const getEventDate = (event: SearchEvent) => {
+  const dateText = event.date.split(" • ")[0]
+  const parsedDate = new Date(dateText)
+  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate
+}
+
+const getDateKey = (date: Date) =>
+  `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
 
 const normalizeCategory = (category: string) => {
   const value = category.toLowerCase()
@@ -49,8 +59,13 @@ export function SearchEventsPage({
   const [location, setLocation] = React.useState("Any Location")
   const [monthOffset, setMonthOffset] = React.useState(0)
   const [showPastEvents, setShowPastEvents] = React.useState(false)
+  const today = React.useMemo(() => new Date(), [])
+  const [selectedDate, setSelectedDate] = React.useState(today)
+  const [selectedEventId, setSelectedEventId] = React.useState<string | null>(
+    null
+  )
 
-  const month = new Date(2026, 8 + monthOffset, 1)
+  const month = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1)
   const monthName = month.toLocaleString("en-US", { month: "long" })
   const year = month.getFullYear()
   const firstDay = new Date(year, month.getMonth(), 1).getDay()
@@ -78,7 +93,24 @@ export function SearchEventsPage({
     return matchesQuery && matchesCategory && matchesLocation
   })
   const eventDays = new Set(
-    filteredEvents.map((event) => Number(event.date.slice(4, 6)))
+    filteredEvents
+      .map(getEventDate)
+      .filter(
+        (eventDate): eventDate is Date =>
+          eventDate !== null &&
+          eventDate.getFullYear() === year &&
+          eventDate.getMonth() === month.getMonth()
+      )
+      .map((eventDate) => eventDate.getDate())
+  )
+  const selectedDayEvents = filteredEvents.filter((event) => {
+    const eventDate = getEventDate(event)
+    return (
+      eventDate !== null && getDateKey(eventDate) === getDateKey(selectedDate)
+    )
+  })
+  const selectedEvent = filteredEvents.find(
+    (event) => event.id === selectedEventId
   )
   const upcomingEvents = filteredEvents.filter((event) =>
     event.date.includes("2026")
@@ -86,8 +118,13 @@ export function SearchEventsPage({
   const pastEvents: SearchEvent[] = []
   const visibleEvents = showPastEvents ? pastEvents : upcomingEvents
 
-  const changeMonth = (amount: number) =>
+  const changeMonth = (amount: number) => {
     setMonthOffset((value) => value + amount)
+    setSelectedDate(
+      new Date(today.getFullYear(), today.getMonth() + monthOffset + amount, 1)
+    )
+    setSelectedEventId(null)
+  }
 
   return (
     <main className="mx-auto max-w-7xl space-y-5 px-4 py-8 sm:px-6 lg:px-8">
@@ -173,7 +210,11 @@ export function SearchEventsPage({
             variant="outline"
             size="sm"
             className="text-xs"
-            onClick={() => setMonthOffset(0)}
+            onClick={() => {
+              setMonthOffset(0)
+              setSelectedDate(today)
+              setSelectedEventId(null)
+            }}
           >
             Today
           </Button>
@@ -203,8 +244,8 @@ export function SearchEventsPage({
 
       {view === "calendar" ? (
         <Card className="rounded-xl border-border/80 shadow-none">
-          <CardContent className="p-4 sm:p-5">
-            <div className="mb-4 flex items-center justify-between">
+          <CardContent className="p-3 sm:p-4">
+            <div className="mb-3 flex items-center justify-between">
               <Button
                 variant="outline"
                 size="icon-sm"
@@ -227,33 +268,124 @@ export function SearchEventsPage({
             </div>
             <div className="grid grid-cols-7 text-center text-[10px] font-medium text-muted-foreground">
               {WEEKDAYS.map((day) => (
-                <span key={day} className="pb-3">
+                <span key={day} className="pb-2">
                   {day}
                 </span>
               ))}
               {calendarDays.map(({ day, current }, index) => {
+                const cellDate = new Date(year, month.getMonth(), day)
                 const hasEvent = current && eventDays.has(day)
-                const selected = current && day === 18 && monthOffset === 0
+                const selected =
+                  current && getDateKey(cellDate) === getDateKey(selectedDate)
+                const isToday = getDateKey(cellDate) === getDateKey(today)
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={`${day}-${index}`}
-                    className={`relative flex min-h-16 items-start justify-center border-t border-border/40 pt-3 text-xs sm:min-h-20 ${current ? "text-foreground" : "text-muted-foreground/30"}`}
+                    disabled={!current}
+                    onClick={() => {
+                      setSelectedDate(cellDate)
+                      setSelectedEventId(null)
+                    }}
+                    aria-label={`${cellDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}${hasEvent ? ", has events" : ""}`}
+                    className={`relative flex min-h-12 items-start justify-center border-t border-border/40 pt-2 text-xs sm:min-h-14 ${current ? "text-foreground" : "cursor-default text-muted-foreground/30"}`}
                   >
                     <span
-                      className={
-                        selected
-                          ? "flex size-full max-w-24 items-start justify-center rounded-md bg-cyan-500 pt-2 font-semibold text-white"
-                          : ""
-                      }
+                      className={`flex size-7 items-center justify-center rounded-full font-semibold ${selected ? "bg-primary text-primary-foreground" : isToday ? "border-2 border-primary text-primary" : ""}`}
                     >
                       {day}
                     </span>
-                    {hasEvent && !selected && (
-                      <span className="absolute top-9 size-1 rounded-full bg-primary" />
+                    {hasEvent && (
+                      <span className="absolute top-9 size-1.5 rounded-full bg-emerald-500" />
                     )}
-                  </div>
+                  </button>
                 )
               })}
+            </div>
+
+            <div className="mt-4 border-t border-border/60 pt-3">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-bold">
+                    {selectedDate.toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedDayEvents.length === 0
+                      ? "No events scheduled"
+                      : `${selectedDayEvents.length} event${selectedDayEvents.length === 1 ? "" : "s"} scheduled`}
+                  </p>
+                </div>
+                {getDateKey(selectedDate) === getDateKey(today) && (
+                  <Badge variant="secondary">Today</Badge>
+                )}
+              </div>
+
+              {selectedDayEvents.length > 0 && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {selectedDayEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      className="flex items-center gap-3 rounded-lg border border-border/70 bg-muted/20 p-3"
+                    >
+                      <img
+                        src={event.image}
+                        alt=""
+                        className="size-14 rounded-md object-cover"
+                      />
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <p className="truncate text-sm font-semibold">
+                          {event.title}
+                        </p>
+                        <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
+                          <MapPin className="size-3 shrink-0" />
+                          {event.location}
+                        </p>
+                        <Button
+                          variant="link"
+                          size="xs"
+                          className="h-auto px-0 text-xs"
+                          onClick={() => setSelectedEventId(event.id)}
+                        >
+                          View event <ArrowRight className="size-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {selectedEvent && (
+                <Card className="mt-3 border-primary/30 bg-primary/5 shadow-none">
+                  <CardContent className="space-y-2 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <Badge>{selectedEvent.category}</Badge>
+                        <CardTitle className="mt-2 text-base">
+                          {selectedEvent.title}
+                        </CardTitle>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={() => setSelectedEventId(null)}
+                        aria-label="Close event details"
+                      >
+                        <ChevronRight className="rotate-90" />
+                      </Button>
+                    </div>
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      {selectedEvent.description}
+                    </p>
+                    <p className="text-xs font-medium text-primary">
+                      {selectedEvent.date}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </CardContent>
         </Card>

@@ -44,7 +44,12 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarImage, AvatarFallback, AvatarBadge } from "@/components/ui/avatar"
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  AvatarBadge,
+} from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -61,7 +66,7 @@ export interface NavUser {
 export interface NavbarProps {
   user?: NavUser
   activeItem?: string
-  onNavigate?: (item: string) => void
+  onNavigate?: (item: string, eventType?: string) => void
   onSearch?: (query: string) => void
   className?: string
 }
@@ -114,7 +119,8 @@ const EVENT_CATEGORIES = [
   {
     title: "Music & Concerts",
     href: "#find-event-music",
-    description: "Live jazz, acoustic sessions, electronic festivals & indie gigs.",
+    description:
+      "Live jazz, acoustic sessions, electronic festivals & indie gigs.",
     icon: Music,
     color: "text-amber-500 dark:text-amber-400 bg-amber-500/10",
   },
@@ -128,7 +134,8 @@ const EVENT_CATEGORIES = [
   {
     title: "Arts & Culture",
     href: "#find-event-arts",
-    description: "Classical dance, art galleries, film screenings & exhibitions.",
+    description:
+      "Classical dance, art galleries, film screenings & exhibitions.",
     icon: Palette,
     color: "text-rose-500 dark:text-rose-400 bg-rose-500/10",
   },
@@ -144,19 +151,22 @@ const EVENT_CATEGORIES = [
 const CREATE_OPTIONS = [
   {
     title: "Host In-Person Event",
-    description: "Reserve a physical venue, manage door tickets & seated guests.",
+    description:
+      "Reserve a physical venue, manage door tickets & seated guests.",
     icon: CalendarPlus,
     href: "#create-physical",
   },
   {
     title: "Host Online Event",
-    description: "Stream live on Zoom/Meet, automated reminders & calendar sync.",
+    description:
+      "Stream live on Zoom/Meet, automated reminders & calendar sync.",
     icon: Laptop,
     href: "#create-virtual",
   },
   {
     title: "Drafts & Templates",
-    description: "Quickly start from recurring templates or your recent drafts.",
+    description:
+      "Quickly start from recurring templates or your recent drafts.",
     icon: Sparkles,
     href: "#create-templates",
   },
@@ -166,7 +176,8 @@ export function Navbar({
   user = {
     name: "Alex Morgan",
     email: "alex.morgan@eventplanner.io",
-    avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
     role: "Event Organizer",
     ticketsCount: 3,
   },
@@ -234,8 +245,8 @@ export function Navbar({
     if (onSearch) onSearch(val)
   }
 
-  const handleItemClick = (name: string, href?: string) => {
-    if (onNavigate) onNavigate(name)
+  const handleItemClick = (name: string, href?: string, eventType?: string) => {
+    if (onNavigate) onNavigate(name, eventType)
     setMobileMenuOpen(false)
     if (href && href.startsWith("#")) {
       const el = document.querySelector(href)
@@ -269,9 +280,8 @@ export function Navbar({
                 <span className="font-heading text-lg font-bold tracking-tight text-foreground">
                   Evently
                 </span>
-                
               </div>
-              <span className="hidden -mt-1 text-[11px] font-medium text-muted-foreground sm:block">
+              <span className="-mt-1 hidden text-[11px] font-medium text-muted-foreground sm:block">
                 Discover & Organize
               </span>
             </div>
@@ -311,13 +321,19 @@ export function Navbar({
                   <NavigationMenuContent className="w-[500px] p-4">
                     <div className="grid grid-cols-2 gap-3">
                       <div className="col-span-2 flex items-center justify-between border-b border-border/50 pb-2">
-                        <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                           <Compass className="size-3.5 text-primary" />
                           Explore by Category
                         </div>
                         <a
                           href="#find-event-all"
-                          onClick={() => handleItemClick("Find Event", "#find-event-all")}
+                          onClick={() =>
+                            handleItemClick(
+                              "Find Event",
+                              "#find-event-all",
+                              "All Categories"
+                            )
+                          }
                           className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
                         >
                           All Events <ChevronRight className="size-3" />
@@ -330,7 +346,9 @@ export function Navbar({
                           <NavigationMenuLink
                             key={cat.title}
                             href={cat.href}
-                            onClick={() => handleItemClick("Find Event", cat.href)}
+                            onClick={() =>
+                              handleItemClick("Find Event", cat.href, cat.title)
+                            }
                             className="group flex flex-col items-start gap-1 rounded-xl p-2.5 transition-colors hover:bg-muted/70 focus:bg-muted/70"
                           >
                             <div className="flex items-center gap-2">
@@ -361,7 +379,10 @@ export function Navbar({
                           Trending in Phnom Penh this weekend
                         </span>
                       </div>
-                      <Badge variant="secondary" className="text-[11px] font-medium">
+                      <Badge
+                        variant="secondary"
+                        className="text-[11px] font-medium"
+                      >
                         6 Live
                       </Badge>
                     </div>
@@ -381,7 +402,7 @@ export function Navbar({
                   </NavigationMenuTrigger>
                   <NavigationMenuContent className="w-[380px] p-3">
                     <div className="space-y-1">
-                      <div className="px-2 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      <div className="px-2 py-1 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                         Event Creation Suite
                       </div>
                       {CREATE_OPTIONS.map((opt) => {
@@ -390,7 +411,9 @@ export function Navbar({
                           <NavigationMenuLink
                             key={opt.title}
                             href={opt.href}
-                            onClick={() => handleItemClick("Create Event", opt.href)}
+                            onClick={() =>
+                              handleItemClick("Create Event", opt.href)
+                            }
                             className="group flex items-start gap-3 rounded-xl p-2.5 transition-colors hover:bg-muted/70 focus:bg-muted/70"
                           >
                             <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-transform group-hover:scale-105 group-hover:bg-primary group-hover:text-primary-foreground">
@@ -412,7 +435,9 @@ export function Navbar({
                       <Button
                         size="sm"
                         className="w-full justify-center gap-2 font-medium"
-                        onClick={() => handleItemClick("Create Event", "#create-new")}
+                        onClick={() =>
+                          handleItemClick("Create Event", "#create-new")
+                        }
                       >
                         <CalendarPlus className="size-4" />
                         Start New Event Wizard
@@ -446,7 +471,7 @@ export function Navbar({
           {/* 5. Search Bar */}
           <div
             ref={searchContainerRef}
-            className="relative hidden sm:block w-48 md:w-64 lg:w-72 transition-all duration-200 focus-within:w-60 md:focus-within:w-80"
+            className="relative hidden w-48 transition-all duration-200 focus-within:w-60 sm:block md:w-64 md:focus-within:w-80 lg:w-72"
           >
             <div className="relative flex items-center">
               <Search className="pointer-events-none absolute left-3 size-4 text-muted-foreground" />
@@ -457,7 +482,7 @@ export function Navbar({
                 onChange={handleSearchChange}
                 onFocus={() => setIsSearchFocused(true)}
                 placeholder="Search events, tags..."
-                className="h-9 w-full rounded-full bg-muted/50 pl-9 pr-12 text-sm transition-all duration-200 hover:bg-muted/80 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-primary/40"
+                className="h-9 w-full rounded-full bg-muted/50 pr-12 pl-9 text-sm transition-all duration-200 hover:bg-muted/80 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-primary/40"
               />
               {searchQuery ? (
                 <button
@@ -472,7 +497,7 @@ export function Navbar({
                   <X className="size-3" />
                 </button>
               ) : (
-                <kbd className="pointer-events-none absolute right-2.5 hidden select-none items-center gap-0.5 rounded border border-border/80 bg-background/80 px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground shadow-xs md:inline-flex">
+                <kbd className="pointer-events-none absolute right-2.5 hidden items-center gap-0.5 rounded border border-border/80 bg-background/80 px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground shadow-xs select-none md:inline-flex">
                   <span>⌘</span>K
                 </kbd>
               )}
@@ -480,8 +505,8 @@ export function Navbar({
 
             {/* Live Search Suggestions Dropdown */}
             {isSearchFocused && searchQuery.trim().length > 0 && (
-              <div className="absolute top-full left-0 mt-2 w-full min-w-[300px] overflow-hidden rounded-2xl border border-border bg-popover/95 p-2 shadow-2xl backdrop-blur-md transition-all animate-in fade-in-0 zoom-in-95 z-50">
-                <div className="px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <div className="absolute top-full left-0 z-50 mt-2 w-full min-w-[300px] animate-in overflow-hidden rounded-2xl border border-border bg-popover/95 p-2 shadow-2xl backdrop-blur-md transition-all fade-in-0 zoom-in-95">
+                <div className="px-2 py-1.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
                   Events ({filteredEvents.length})
                 </div>
                 {filteredEvents.length > 0 ? (
@@ -495,7 +520,7 @@ export function Navbar({
                           setIsSearchFocused(false)
                           if (onSearch) onSearch(event.title)
                         }}
-                        className="flex w-full items-start gap-2.5 rounded-xl p-2 text-left transition-colors hover:bg-muted focus:bg-muted outline-none"
+                        className="flex w-full items-start gap-2.5 rounded-xl p-2 text-left transition-colors outline-none hover:bg-muted focus:bg-muted"
                       >
                         <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                           <CalendarDays className="size-3.5" />
@@ -512,7 +537,7 @@ export function Navbar({
                         </div>
                         <Badge
                           variant="secondary"
-                          className="shrink-0 text-[10px] py-0 px-1.5"
+                          className="shrink-0 px-1.5 py-0 text-[10px]"
                         >
                           {event.category}
                         </Badge>
@@ -531,7 +556,7 @@ export function Navbar({
           {/* Quick Create CTA Button (Desktop only) */}
           <Button
             size="sm"
-            className="hidden xl:inline-flex gap-1.5 rounded-full font-semibold shadow-xs"
+            className="hidden gap-1.5 rounded-full font-semibold shadow-xs xl:inline-flex"
             onClick={() => handleItemClick("Create Event", "#create-new")}
           >
             <CalendarPlus className="size-3.5" />
@@ -541,7 +566,7 @@ export function Navbar({
           {/* 6. Profile Avatar with Dropdown Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger
-              className="group relative rounded-full outline-none transition-transform focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-95"
+              className="group relative rounded-full transition-transform outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-95"
               aria-label="User profile menu"
             >
               <Avatar
@@ -561,14 +586,18 @@ export function Navbar({
               </Avatar>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" sideOffset={8} className="w-64 p-1.5">
+            <DropdownMenuContent
+              align="end"
+              sideOffset={8}
+              className="w-64 p-1.5"
+            >
               {/* User Identity Header */}
               <div className="flex items-center gap-3 p-2.5">
                 <Avatar size="default" className="size-10">
                   {user.avatarUrl && (
                     <AvatarImage src={user.avatarUrl} alt={user.name} />
                   )}
-                  <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                  <AvatarFallback className="bg-primary/10 font-bold text-primary">
                     {user.name
                       .split(" ")
                       .map((n) => n[0])
@@ -653,21 +682,27 @@ export function Navbar({
                   <DropdownMenuSubContent className="w-36">
                     <DropdownMenuItem
                       onClick={() => setTheme("light")}
-                      className={cn(theme === "light" && "bg-accent font-semibold")}
+                      className={cn(
+                        theme === "light" && "bg-accent font-semibold"
+                      )}
                     >
                       <Sun className="size-4" />
                       <span>Light</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => setTheme("dark")}
-                      className={cn(theme === "dark" && "bg-accent font-semibold")}
+                      className={cn(
+                        theme === "dark" && "bg-accent font-semibold"
+                      )}
                     >
                       <Moon className="size-4" />
                       <span>Dark</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => setTheme("system")}
-                      className={cn(theme === "system" && "bg-accent font-semibold")}
+                      className={cn(
+                        theme === "system" && "bg-accent font-semibold"
+                      )}
                     >
                       <Monitor className="size-4" />
                       <span>System</span>
@@ -703,7 +738,7 @@ export function Navbar({
             variant="ghost"
             size="icon"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
-            className="lg:hidden rounded-full"
+            className="rounded-full lg:hidden"
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
           >
             {mobileMenuOpen ? (
@@ -717,10 +752,10 @@ export function Navbar({
 
       {/* Mobile Drawer / Slide-down Menu */}
       {mobileMenuOpen && (
-        <div className="border-b border-border bg-background/95 px-4 pt-2 pb-6 backdrop-blur-2xl lg:hidden animate-in slide-in-from-top-4 duration-200">
+        <div className="animate-in border-b border-border bg-background/95 px-4 pt-2 pb-6 backdrop-blur-2xl duration-200 slide-in-from-top-4 lg:hidden">
           {/* Mobile Search input */}
-          <div className="relative mb-4 mt-2">
-            <Search className="pointer-events-none absolute left-3 top-2.5 size-4 text-muted-foreground" />
+          <div className="relative mt-2 mb-4">
+            <Search className="pointer-events-none absolute top-2.5 left-3 size-4 text-muted-foreground" />
             <Input
               type="text"
               value={searchQuery}
@@ -738,7 +773,7 @@ export function Navbar({
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                 activeItem === "Home"
-                  ? "bg-primary/10 text-primary font-semibold"
+                  ? "bg-primary/10 font-semibold text-primary"
                   : "text-foreground hover:bg-muted"
               )}
             >
@@ -752,7 +787,7 @@ export function Navbar({
               className={cn(
                 "flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                 activeItem === "Create Event"
-                  ? "bg-primary/10 text-primary font-semibold"
+                  ? "bg-primary/10 font-semibold text-primary"
                   : "text-foreground hover:bg-muted"
               )}
             >
@@ -760,7 +795,7 @@ export function Navbar({
                 <CalendarPlus className="size-4" />
                 <span>Create Event</span>
               </div>
-              <Badge variant="default" className="text-[10px] py-0 px-2">
+              <Badge variant="default" className="px-2 py-0 text-[10px]">
                 New
               </Badge>
             </a>
@@ -771,7 +806,7 @@ export function Navbar({
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                 activeItem === "Find Event"
-                  ? "bg-primary/10 text-primary font-semibold"
+                  ? "bg-primary/10 font-semibold text-primary"
                   : "text-foreground hover:bg-muted"
               )}
             >
@@ -785,7 +820,7 @@ export function Navbar({
                 <a
                   key={c.title}
                   href={c.href}
-                  onClick={() => handleItemClick("Find Event", c.href)}
+                  onClick={() => handleItemClick("Find Event", c.href, c.title)}
                   className="rounded-lg border border-border bg-muted/40 px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
                 >
                   {c.title.split(" ")[0]}
@@ -799,7 +834,7 @@ export function Navbar({
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                 activeItem === "About"
-                  ? "bg-primary/10 text-primary font-semibold"
+                  ? "bg-primary/10 font-semibold text-primary"
                   : "text-foreground hover:bg-muted"
               )}
             >
@@ -834,9 +869,7 @@ export function Navbar({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  setTheme(theme === "dark" ? "light" : "dark")
-                }
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className="h-8 gap-1.5 rounded-full px-2.5 text-xs font-medium"
               >
                 {theme === "dark" ? (

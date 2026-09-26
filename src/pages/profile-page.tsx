@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom"
 
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { ProfileDetail } from "@/components/profile-detial"
+import { ProfileDetail } from "@/components/profile-detail"
 
 export function ProfilePage() {
   const navigate = useNavigate()

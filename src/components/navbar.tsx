@@ -13,24 +13,26 @@ import { ProfileMenu } from "./navbar/profile-menu"
 import { SearchBar } from "./navbar/search-bar"
 import type { NavItemClick, NavUser, NavbarProps } from "./navbar/types"
 
+import { useUserProfile, logoutUser } from "@/data/user"
 export type { NavUser, NavbarProps } from "./navbar/types"
 
-const DEFAULT_USER: NavUser = {
-  name: "Alex Morgan",
-  email: "alex.morgan@eventplanner.io",
-  avatarUrl:
-    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-  role: "Event Organizer",
-  ticketsCount: 3,
-}
-
 export function Navbar({
-  user = DEFAULT_USER,
+  user,
   activeItem = "Home",
   onNavigate,
   onSearch,
   className,
 }: NavbarProps) {
+  const [profile] = useUserProfile()
+  const activeUser: NavUser = user || {
+    name: profile.name,
+    email: profile.email,
+    avatarUrl: profile.avatarUrl,
+    role: profile.role,
+    ticketsCount: profile.ticketsCount,
+    isLoggedIn: profile.isLoggedIn !== false,
+  }
+
   const [searchQuery, setSearchQuery] = React.useState("")
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
 
@@ -57,17 +59,34 @@ export function Navbar({
     if (onNavigate) onNavigate(name, eventType)
     setMobileMenuOpen(false)
 
-    // Pages with dedicated routes
+    if (name === "Logout" || name === "Log out") {
+      logoutUser()
+      navigate("/")
+      return
+    }
+
+    // Map menu items to target routes & tab parameters
     const routeMap: Record<string, string> = {
       Profile: "/profile",
+      "My Profile": "/profile",
+      "My Tickets": "/profile?tab=tickets",
+      Tickets: "/profile?tab=tickets",
+      Saved: "/profile?tab=saved",
+      "Saved Events": "/profile?tab=saved",
+      "Hosted Events": "/profile?tab=hosted",
+      "My Events": "/profile?tab=hosted",
       About: "/about",
+      Settings: "/settings", // or "/profile?tab=overview"
     }
-    const route = routeMap[name]
-    if (route) {
-      if (location.pathname === route) {
-        window.scrollTo({ top: 0, behavior: "smooth" })
+
+    const targetRoute = routeMap[name]
+
+    if (targetRoute) {
+      // If navigating within the profile page (e.g. switching tabs)
+      if (location.pathname === "/profile" && targetRoute.startsWith("/profile")) {
+        navigate(targetRoute)
       } else {
-        navigate(route)
+        navigate(targetRoute)
         window.scrollTo({ top: 0 })
       }
       return
@@ -115,7 +134,7 @@ export function Navbar({
           </Button>
 
           <ProfileMenu
-            user={user}
+            user={activeUser}
             theme={theme}
             onThemeChange={setTheme}
             onNav={handleItemClick}
@@ -141,7 +160,7 @@ export function Navbar({
       {/* Mobile Drawer / Slide-down Menu */}
       {mobileMenuOpen && (
         <MobileMenu
-          user={user}
+          user={activeUser}
           activeItem={activeItem}
           theme={theme}
           searchQuery={searchQuery}

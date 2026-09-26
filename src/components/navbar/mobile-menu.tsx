@@ -3,9 +3,12 @@ import {
   CalendarPlus,
   Compass,
   HelpCircle,
+  LogOut,
   Moon,
   Search,
+  Settings,
   Sun,
+  User,
 } from "lucide-react"
 import { cn } from "cn"
 
@@ -13,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { loginUser, logoutUser } from "@/data/user"
 
 import { EVENT_CATEGORIES } from "./data"
 import type { NavItemClick, NavUser, ThemeName } from "./types"
@@ -124,39 +128,105 @@ export function MobileMenu({
       </div>
 
       <div className="mt-4 border-t border-border pt-4">
-        <div className="flex items-center justify-between px-2">
-          <div className="flex items-center gap-2.5">
-            <Avatar size="sm" className="size-8">
-              {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name} />}
-              <AvatarFallback className="text-xs">{user.name[0]}</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <span className="text-xs font-semibold text-foreground">
-                {user.name}
-              </span>
-              <span className="text-[11px] text-muted-foreground">
-                {user.ticketsCount} tickets available
-              </span>
+        {user.isLoggedIn === false ? (
+          <div className="flex items-center justify-between px-2">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => loginUser()}
+              className="rounded-full gap-2 px-4 text-xs font-semibold shadow-xs"
+            >
+              <User className="size-3.5" />
+              <span>Sign In</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onToggleTheme}
+              className="h-8 gap-1.5 rounded-full px-2.5 text-xs font-medium"
+            >
+              {theme === "dark" ? (
+                <>
+                  <Sun className="size-3.5" /> Light
+                </>
+              ) : (
+                <>
+                  <Moon className="size-3.5" /> Dark
+                </>
+              )}
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3 px-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <Avatar size="sm" className="size-8">
+                  {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name} />}
+                  <AvatarFallback className="text-xs">{user.name[0]}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <span className="text-xs font-semibold text-foreground">
+                    {user.name}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">
+                    {user.ticketsCount} tickets available
+                  </span>
+                </div>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onToggleTheme}
+                className="h-8 gap-1.5 rounded-full px-2.5 text-xs font-medium"
+              >
+                {theme === "dark" ? (
+                  <>
+                    <Sun className="size-3.5" /> Light
+                  </>
+                ) : (
+                  <>
+                    <Moon className="size-3.5" /> Dark
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 rounded-xl text-xs gap-1.5 font-medium"
+                onClick={(e) => onNav("Profile", "/profile", e)}
+              >
+                <User className="size-3.5" />
+                <span>Profile</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 rounded-xl text-xs gap-1.5 font-medium"
+                onClick={(e) => onNav("Settings", "/settings", e)}
+              >
+                <Settings className="size-3.5" />
+                <span>Settings</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 rounded-xl text-xs gap-1.5 font-medium text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={() => {
+                  logoutUser()
+                  onNav("Logout", "#logout")
+                }}
+              >
+                <LogOut className="size-3.5" />
+                <span>Log out</span>
+              </Button>
             </div>
           </div>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onToggleTheme}
-            className="h-8 gap-1.5 rounded-full px-2.5 text-xs font-medium"
-          >
-            {theme === "dark" ? (
-              <>
-                <Sun className="size-3.5" /> Light
-              </>
-            ) : (
-              <>
-                <Moon className="size-3.5" /> Dark
-              </>
-            )}
-          </Button>
-        </div>
+        )}
       </div>
     </div>
   )

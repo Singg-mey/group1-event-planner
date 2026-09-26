@@ -28,7 +28,7 @@ export function Footer({ className }: FooterProps) {
               <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
                 <CalendarDays className="size-4" />
               </span>
-              <span>EventPlanner</span>
+              <span>Evently</span>
             </a>
             <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">
               Empowering Cambodia&apos;s vibrant community through effortless
@@ -72,7 +72,7 @@ export function Footer({ className }: FooterProps) {
 
         <div className="mt-4 flex flex-col gap-3 border-t border-border/60 pt-2 text-[11px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © 2025 EventPlanner Cambodia. Connecting communities across the
+            © 2025 EventLy Cambodia. Connecting communities across the
             Kingdom of Wonder.
           </p>
           <div className="flex items-center gap-4">

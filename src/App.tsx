@@ -6,7 +6,7 @@ import { HighlightEvent } from "@/components/hightlight_event"
 import { Quickstart } from "@/components/quickstart"
 import { CurrentEvent, type CurrentEventData } from "@/components/current-event"
 import { SearchEventsPage } from "@/components/search-event-page"
-import { ALL_EVENTS, FEATURED_EVENTS } from "@/data/events"
+import { useEvents } from "@/hooks/use-events"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -46,6 +46,7 @@ const CURRENT_EVENT: CurrentEventData = {
 export function App() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { events } = useEvents()
   // The event detail page's Back button hands back which tab to reopen
   const [activeItem, setActiveItem] = React.useState<string>(
     location.state?.activeItem ?? "Home"
@@ -102,7 +103,7 @@ export function App() {
     return c
   }
 
-  const filteredEvents = FEATURED_EVENTS.filter((evt) => {
+  const filteredEvents = events.filter((evt) => {
     const matchesCategory =
       selectedCategory === "All" ||
       normalize(evt.category) === normalize(selectedCategory) ||
@@ -138,7 +139,7 @@ export function App() {
       {activeItem === "Find Event" ? (
         <SearchEventsPage
           key={selectedEventType}
-          events={ALL_EVENTS}
+          events={events}
           initialCategory={selectedEventType}
         />
       ) : activeItem === "Create Event" ? (
@@ -386,7 +387,7 @@ export function App() {
             <div className="space-y-3 rounded-2xl border border-border/70 bg-card p-6">
               <div className="flex items-center gap-2 font-bold text-primary">
                 <Sparkles className="size-5" />
-                <h3 className="text-base font-semibold">About EventPlanner</h3>
+                <h3 className="text-base font-semibold">About EventLy</h3>
               </div>
               <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
                 Built with React 19, TypeScript, Tailwind CSS, and Shadcn UI

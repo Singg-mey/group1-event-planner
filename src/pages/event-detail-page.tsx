@@ -6,13 +6,14 @@ import { Footer } from "@/components/footer"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ALL_EVENTS } from "@/data/events"
+import { useEvents } from "@/hooks/use-events"
 
 export function EventDetailPage() {
   const { id } = useParams()
   const { state } = useLocation()
   const navigate = useNavigate()
-  const event = ALL_EVENTS.find((item) => item.id === id)
+  const { events, isLoading } = useEvents()
+  const event = events.find((item) => item.id === id)
   const isPast = event?.status === "CONCLUDED"
 
   const details = event
@@ -49,7 +50,13 @@ export function EventDetailPage() {
           Back to events
         </Button>
 
-        {event ? (
+        {isLoading ? (
+          <Card className="border-dashed shadow-none">
+            <CardContent className="flex min-h-40 items-center justify-center text-center text-sm text-muted-foreground">
+              Loading event...
+            </CardContent>
+          </Card>
+        ) : event ? (
           <article className="space-y-6">
             <div className="relative aspect-video overflow-hidden rounded-3xl bg-muted sm:aspect-[21/9]">
               <img

@@ -6,7 +6,6 @@ import {
   CalendarDays,
   Camera,
   Clock,
-  Edit,
   Link as LinkIcon,
   Mail,
   MapPin,
@@ -31,22 +30,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Textarea } from "@/components/ui/textarea"
-import {
-  InputGroup,
-  InputGroupInput,
-  InputGroupAddon,
-} from "@/components/ui/input-group"
 import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress"
+import { EditProfileModal } from "@/components/edit-profile-modal"
+import { useUserProfile } from "@/data/user"
 
 export interface ProfileDetailData {
   name: string
+  username?: string
   email: string
   avatarUrl?: string
+  avatar?: string
   role?: string
   bio?: string
   location?: string
@@ -62,27 +57,10 @@ export interface ProfileDetailData {
 
 export interface ProfileDetailProps {
   user?: ProfileDetailData
+  defaultTab?: "overview" | "tickets" | "hosted" | "saved"
   onBack?: () => void
   onEditProfile?: () => void
   className?: string
-}
-
-const DEFAULT_USER: ProfileDetailData = {
-  name: "Alex Morgan",
-  email: "alex.morgan@eventplanner.io",
-  avatarUrl:
-    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
-  role: "Event Organizer",
-  bio: "Passionate about bringing creative communities together across Phnom Penh. I organize rooftop mixers, live jazz nights and tech meetups — always looking for the next unforgettable gathering.",
-  location: "Phnom Penh, Cambodia",
-  website: "https://eventplanner.io/alex",
-  phone: "+855 12 345 678",
-  memberSince: "March 2024",
-  ticketsCount: 3,
-  hostedCount: 8,
-  savedCount: 12,
-  followingCount: 145,
-  rating: 4.9,
 }
 
 const STATS: {
@@ -96,7 +74,8 @@ const STATS: {
   { label: "Saved Events", valueKey: "savedCount", icon: Bookmark, tint: "bg-sky-500/10 text-sky-600 dark:text-sky-400" },
   { label: "Followers", valueKey: "followingCount", icon: Users, tint: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
 ]
-interface Ticket {
+
+interface TicketItem {
   id: string
   event: string
   date: string
@@ -106,7 +85,8 @@ interface Ticket {
   status: string
   code: string
 }
-const TICKETS: Ticket[] = [
+
+const TICKETS: TicketItem[] = [
   {
     id: "tkt_001",
     event: "Sunset Rooftop Mixer",
@@ -241,36 +221,54 @@ const RECENT_ACTIVITY = [
 ]
 
 export function ProfileDetail({
-  user = DEFAULT_USER,
+  user: initialUser,
+  defaultTab = "overview",
   onBack,
   onEditProfile,
   className,
 }: ProfileDetailProps) {
-  const initials = user.name
+  const [profile, saveProfile] = useUserProfile()
+
+  // Merge profile state with initial props, ensuring avatar property fallback
+  const rawUser = initialUser ? { ...initialUser, ...profile } : profile
+  const currentUser: ProfileDetailData = {
+    ...rawUser,
+    avatarUrl: rawUser.avatarUrl || (rawUser as { avatar?: string }).avatar || "",
+  }
+
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false)
+
+  // Safe initials fallback
+  const initials = (currentUser.name || "User")
+    .trim()
     .split(" ")
     .map((n) => n[0])
     .join("")
-
-  const [isEditing, setIsEditing] = React.useState(false)
+    .toUpperCase()
 
   const avatarWithOverlay = (
-    <div className="group/avatar relative shrink-0">
+    <div className="group/avatar relative z-10 shrink-0">
       <Avatar size="lg" className="size-20 ring-4 ring-background md:size-24">
-        {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name} />}
+        {currentUser.avatarUrl ? (
+          <AvatarImage
+            src={currentUser.avatarUrl}
+            alt={currentUser.name || "User avatar"}
+            className="object-cover"
+          />
+        ) : null}
         <AvatarFallback className="bg-gradient-to-tr from-primary/20 to-sky-500/20 text-xl font-bold text-primary md:text-2xl">
           {initials}
         </AvatarFallback>
-        <AvatarBadge className="size-3.5 bg-emerald-500" />
+        <AvatarBadge className="size-4 md:size-5 bottom-1 right-1 md:bottom-1.5 md:right-1.5 ring-2 md:ring-3 ring-background bg-emerald-500 z-20 pointer-events-none" />
       </Avatar>
-      {isEditing && (
-        <button
-          type="button"
-          aria-label="Change profile photo"
-          className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-950/50 text-white opacity-0 transition-opacity group-hover/avatar:opacity-100"
-        >
-          <Camera className="size-5" />
-        </button>
-      )}
+      <button
+        type="button"
+        aria-label="Change profile photo"
+        onClick={() => setIsEditModalOpen(true)}
+        className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-slate-950/50 text-white opacity-0 transition-opacity group-hover/avatar:opacity-100"
+      >
+        <Camera className="size-5" />
+      </button>
     </div>
   )
 
@@ -295,21 +293,19 @@ export function ProfileDetail({
       {/* Profile Hero Card */}
       <div className="overflow-hidden rounded-2xl border border-border/70 bg-card [--card-spacing:--spacing(6)]">
         {/* Cover banner */}
-        <div className="relative h-28 overflow-hidden bg-linear-to-r from-primary via-indigo-500 to-sky-400 md:h-36">
-          <div className="absolute top-0 right-0 h-full w-1/3 bg-linear-to-b from-white/10 to-transparent opacity-40 blur-2xl" />
+        <div className="relative h-28 overflow-hidden bg-gradient-to-r from-primary via-indigo-500 to-sky-400 md:h-36">
+          <div className="absolute top-0 right-0 h-full w-1/3 bg-gradient-to-b from-white/10 to-transparent opacity-40 blur-2xl" />
           <div className="absolute bottom-0 left-5 flex h-full items-end pb-3 text-[4.5rem] leading-none font-bold tracking-tight text-white/10 select-none md:left-8 md:text-[7rem]">
             {initials}
           </div>
-          {onEditProfile && (
-            <button
-              type="button"
-              onClick={onEditProfile}
-              aria-label="Upload cover photo"
-              className="absolute right-4 bottom-4 flex size-9 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-colors hover:bg-white/30"
-            >
-              <UploadCloud className="size-4" />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setIsEditModalOpen(true)}
+            aria-label="Upload cover photo"
+            className="absolute right-4 bottom-4 flex size-9 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-colors hover:bg-white/30"
+          >
+            <UploadCloud className="size-4" />
+          </button>
         </div>
 
         <CardContent className="pt-14 pb-6">
@@ -320,33 +316,44 @@ export function ProfileDetail({
               <div className="flex flex-col gap-1.5 pb-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="font-heading text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
-                    {user.name}
+                    {currentUser.name}
                   </h1>
+                  {currentUser.username && (
+                    <span className="text-sm font-medium text-muted-foreground">
+                      @{currentUser.username}
+                    </span>
+                  )}
                   <div className="flex items-center gap-1 text-sm font-semibold text-amber-500">
                     <Star className="size-4 fill-amber-400 text-amber-400" />
-                    <span>{user.rating ?? "4.9"}</span>
+                    <span>{currentUser.rating ?? "4.9"}</span>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge className="gap-1.5 bg-primary/10 text-primary">
                     <Sparkles className="size-3" />
-                    {user.role || "Event Planner"}
+                    {currentUser.role || "Event Planner"}
                   </Badge>
                   <span className="text-xs text-muted-foreground">
-                    Member since {user.memberSince}
+                    Member since {currentUser.memberSince}
                   </span>
                 </div>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                  {user.location && (
+                  {currentUser.location && (
                     <span className="inline-flex items-center gap-1">
                       <MapPin className="size-3.5" />
-                      {user.location}
+                      {currentUser.location}
                     </span>
                   )}
-                  {user.website && (
+                  {currentUser.email && (
+                    <span className="inline-flex items-center gap-1">
+                      <Mail className="size-3.5" />
+                      {currentUser.email}
+                    </span>
+                  )}
+                  {currentUser.website && (
                     <span className="inline-flex items-center gap-1">
                       <LinkIcon className="size-3.5" />
-                      {user.website.replace(/^https?:\/\//, "")}
+                      {currentUser.website.replace(/^https?:\/\//, "")}
                     </span>
                   )}
                 </div>
@@ -358,10 +365,10 @@ export function ProfileDetail({
                 variant="outline"
                 size="sm"
                 className="gap-1.5 rounded-full font-semibold"
-                onClick={() => setIsEditing((prev) => !prev)}
+                onClick={() => setIsEditModalOpen(true)}
               >
                 <Pencil className="size-3.5" />
-                {isEditing ? "Preview Profile" : "Edit Profile"}
+                Edit Profile
               </Button>
               <Button size="sm" className="gap-1.5 rounded-full font-semibold" onClick={onEditProfile}>
                 <ArrowRight className="size-3.5" />
@@ -386,7 +393,7 @@ export function ProfileDetail({
                   </div>
                   <div className="flex flex-col">
                     <span className="text-lg leading-tight font-bold tabular-nums text-foreground">
-                      {user[stat.valueKey] ?? 0}
+                      {currentUser[stat.valueKey] ?? 0}
                     </span>
                     <span className="text-[11px] font-medium text-muted-foreground">
                       {stat.label}
@@ -400,7 +407,7 @@ export function ProfileDetail({
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="overview">
+      <Tabs defaultValue={defaultTab}>
         <TabsList className="h-auto w-full gap-1 rounded-full bg-muted/60 p-1 sm:w-fit">
           <TabsTrigger value="overview" className="gap-1.5 rounded-full data-active:bg-background">
             <User className="size-4" />
@@ -410,7 +417,7 @@ export function ProfileDetail({
             <Ticket className="size-4" />
             My Tickets
             <span className="ml-0.5 rounded-full bg-muted-foreground/15 px-1.5 text-[11px]">
-              {user.ticketsCount}
+              {currentUser.ticketsCount}
             </span>
           </TabsTrigger>
           <TabsTrigger value="hosted" className="gap-1.5 rounded-full data-active:bg-background">
@@ -421,7 +428,7 @@ export function ProfileDetail({
             <Bookmark className="size-4" />
             Saved
             <span className="ml-0.5 rounded-full bg-muted-foreground/15 px-1.5 text-[11px]">
-              {user.savedCount}
+              {currentUser.savedCount}
             </span>
           </TabsTrigger>
         </TabsList>
@@ -432,75 +439,26 @@ export function ProfileDetail({
             {/* About / bio */}
             <Card size="sm">
               <CardHeader>
-                <CardTitle className="text-base font-semibold">
-                  {isEditing ? "Edit Profile" : "About me"}
-                </CardTitle>
-                <CardAction>
+                <CardTitle className="text-base font-semibold">About me</CardTitle>
+                <CardAction className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="xs"
+                    className="gap-1 rounded-full text-xs text-muted-foreground hover:text-foreground"
+                    onClick={() => setIsEditModalOpen(true)}
+                  >
+                    <Pencil className="size-3" />
+                    Edit
+                  </Button>
                   <Badge variant="secondary" className="text-[11px]">
                     Public
                   </Badge>
                 </CardAction>
               </CardHeader>
               <CardContent className="space-y-4">
-                {isEditing ? (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="profile-name">Full name</Label>
-                      <Input id="profile-name" defaultValue={user.name} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="profile-bio">Bio</Label>
-                      <Textarea
-                        id="profile-bio"
-                        defaultValue={user.bio}
-                        rows={4}
-                        className="resize-none rounded-2xl"
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="profile-location">Location</Label>
-                        <InputGroup>
-                          <InputGroupAddon align="inline-start">
-                            <MapPin className="size-3.5" />
-                          </InputGroupAddon>
-                          <InputGroupInput id="profile-location" defaultValue={user.location} />
-                        </InputGroup>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="profile-website">Website</Label>
-                        <InputGroup>
-                          <InputGroupAddon align="inline-start">
-                            <LinkIcon className="size-3.5" />
-                          </InputGroupAddon>
-                          <InputGroupInput id="profile-website" defaultValue={user.website} />
-                        </InputGroup>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="profile-phone">Phone</Label>
-                      <InputGroup>
-                        <InputGroupAddon align="inline-start" className="rounded-full">
-                          <span className="text-xs font-semibold">KH</span>
-                        </InputGroupAddon>
-                        <InputGroupInput id="profile-phone" defaultValue={user.phone} />
-                      </InputGroup>
-                    </div>
-                    <div className="flex items-center justify-end gap-2 pt-1">
-                      <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>
-                        Cancel
-                      </Button>
-                      <Button size="sm" className="gap-1.5 font-semibold" onClick={() => setIsEditing(false)}>
-                        <Edit className="size-3.5" />
-                        Save changes
-                      </Button>
-                    </div>
-                  </>
-                ) : (
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {user.bio}
-                  </p>
-                )}
+                <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+                  {currentUser.bio}
+                </p>
               </CardContent>
             </Card>
 
@@ -680,25 +638,54 @@ export function ProfileDetail({
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
               <Mail className="size-3.5 text-primary" />
-              {user.email}
+              {currentUser.email}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <MapPin className="size-3.5 text-primary" />
-              {user.location}
+              {currentUser.location}
             </span>
-            {user.phone && (
+            {currentUser.phone && (
               <span className="inline-flex items-center gap-1.5">
                 <UploadCloud className="size-3.5 text-primary" />
-                {user.phone}
+                {currentUser.phone}
               </span>
             )}
           </div>
-          <Button variant="outline" size="sm" className="gap-1.5 rounded-full font-semibold">
-            <Mail className="size-3.5" />
-            Contact {user.name.split(" ")[0]}
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 rounded-full font-semibold"
+            onClick={() => setIsEditModalOpen(true)}
+          >
+            <Pencil className="size-3.5" />
+            Edit Profile
           </Button>
         </CardContent>
       </Card>
+
+      {/* Edit Profile Modal Dialog */}
+      <EditProfileModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        initialData={{
+          name: currentUser.name,
+          username: currentUser.username ?? "johndoe",
+          bio: currentUser.bio ?? "",
+          location: currentUser.location ?? "",
+          email: currentUser.email,
+          avatarUrl: currentUser.avatarUrl || currentUser.avatar || "", 
+        }}
+        onSave={(data) => {
+          saveProfile({
+            name: data.name,
+            username: data.username,
+            bio: data.bio,
+            location: data.location,
+            email: data.email,
+            avatarUrl: data.avatarUrl,
+          })
+        }}
+      />
     </div>
   )
 }

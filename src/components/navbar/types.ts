@@ -6,6 +6,7 @@ export interface NavUser {
   avatarUrl?: string
   role?: string
   ticketsCount?: number
+  isLoggedIn?: boolean
 }
 
 export type ThemeName = "dark" | "light" | "system"

@@ -1,5 +1,13 @@
 import * as React from "react"
-import { CalendarDays, Check, ImagePlus, MapPin, Upload } from "lucide-react"
+import {
+  CalendarDays,
+  Check,
+  ImagePlus,
+  MapPin,
+  Upload,
+  User,
+} from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -12,6 +20,8 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { useUserProfile } from "@/data/user"
+import { createEvent } from "@/data/events-repository"
 
 export interface CreateEventValues {
   eventName?: string
@@ -21,6 +31,7 @@ export interface CreateEventValues {
 
 interface CreateEventProps {
   initialValues?: CreateEventValues
+  onCreated?: () => void
 }
 
 const categories = [
@@ -31,21 +42,96 @@ const categories = [
   "Community",
 ]
 
-export function CreateEvent({ initialValues }: CreateEventProps) {
+export function CreateEvent({ initialValues, onCreated }: CreateEventProps) {
+  const navigate = useNavigate()
+  const [profile] = useUserProfile()
   const [visibility, setVisibility] = React.useState<"public" | "private">(
     "public"
   )
   const [coverImage, setCoverImage] = React.useState<string | null>(null)
+  const [coverImageFile, setCoverImageFile] = React.useState<File | null>(null)
   const [savedMessage, setSavedMessage] = React.useState("")
+  const [errorMessage, setErrorMessage] = React.useState("")
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
+
+  const isLoggedIn = profile.isLoggedIn !== false
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (file) setCoverImage(URL.createObjectURL(file))
+    if (file) {
+      setCoverImage(URL.createObjectURL(file))
+      setCoverImageFile(file)
+    }
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setSavedMessage("Your event is ready to publish.")
+    setSavedMessage("")
+    setErrorMessage("")
+
+    if (!isLoggedIn) {
+      setErrorMessage("Please sign in to create an event.")
+      return
+    }
+
+    const form = event.currentTarget
+    const formData = new FormData(form)
+    setIsSubmitting(true)
+
+    try {
+      await createEvent({
+        title: String(formData.get("eventName") ?? ""),
+        category: String(formData.get("category") ?? ""),
+        date: String(formData.get("date") ?? ""),
+        time: String(formData.get("time") ?? ""),
+        location: String(formData.get("location") ?? ""),
+        description: String(formData.get("description") ?? ""),
+        visibility,
+        coverImage: coverImageFile,
+      })
+      setSavedMessage(
+        visibility === "public"
+          ? "Public event saved. Everyone can view and join it."
+          : "Private event saved. Only you can view and manage it."
+      )
+      onCreated?.()
+      form.reset()
+      setCoverImage(null)
+      setCoverImageFile(null)
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unable to save this event."
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <main className="min-h-[calc(100vh-4rem)] bg-muted/20 px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-xl">
+          <div className="rounded-2xl border border-border/70 bg-card p-8 text-center shadow-sm">
+            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <User className="size-6" />
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Sign in to create an event
+            </h1>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Only signed-in users can publish events. Public events are visible
+              to everyone, while private events stay limited to the creator.
+            </p>
+            <Button
+              className="mt-6 rounded-full"
+              onClick={() => navigate("/sign-in")}
+            >
+              Go to sign in
+            </Button>
+          </div>
+        </div>
+      </main>
+    )
   }
 
   return (
@@ -172,7 +258,7 @@ export function CreateEvent({ initialValues }: CreateEventProps) {
                     <input
                       id="cover-image"
                       type="file"
-                      accept="image/*"
+                      accept="image/png, image/jpeg, image/webp"
                       className="sr-only"
                       onChange={handleImageChange}
                     />
@@ -204,8 +290,8 @@ export function CreateEvent({ initialValues }: CreateEventProps) {
                             className={`mt-1 block text-xs ${visibility === option ? "text-primary-foreground/75" : "text-muted-foreground"}`}
                           >
                             {option === "public"
-                              ? "Anyone can find and join"
-                              : "Invite-only, shared by link"}
+                              ? "Everyone can view and join"
+                              : "Only you can view and manage this event"}
                           </span>
                         </span>
                       </button>
@@ -217,18 +303,19 @@ export function CreateEvent({ initialValues }: CreateEventProps) {
 
             <div className="flex flex-col-reverse gap-3 border-t border-border/60 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
               <span
-                className="text-sm text-emerald-600 dark:text-emerald-400"
+                className={`text-sm ${errorMessage ? "text-destructive" : "text-emerald-600 dark:text-emerald-400"}`}
                 aria-live="polite"
+                role={errorMessage ? "alert" : undefined}
               >
-                {savedMessage}
+                {errorMessage || savedMessage}
               </span>
               <div className="flex justify-end gap-3 sm:ml-auto">
                 <Button type="button" variant="outline">
                   Save draft
                 </Button>
-                <Button type="submit" className="gap-2">
+                <Button type="submit" className="gap-2" disabled={isSubmitting}>
                   <Upload className="size-4" />
-                  Publish event
+                  {isSubmitting ? "Saving..." : "Publish event"}
                 </Button>
               </div>
             </div>

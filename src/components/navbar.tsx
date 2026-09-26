@@ -24,6 +24,7 @@ export function Navbar({
   className,
 }: NavbarProps) {
   const [profile] = useUserProfile()
+  const isLoggedIn = profile.isLoggedIn !== false
   const activeUser: NavUser = user || {
     name: profile.name,
     email: profile.email,
@@ -65,6 +66,11 @@ export function Navbar({
       return
     }
 
+    if (name === "Create Event" && !isLoggedIn) {
+      navigate("/sign-in")
+      return
+    }
+
     // Map menu items to target routes & tab parameters
     const routeMap: Record<string, string> = {
       Profile: "/profile",
@@ -83,7 +89,10 @@ export function Navbar({
 
     if (targetRoute) {
       // If navigating within the profile page (e.g. switching tabs)
-      if (location.pathname === "/profile" && targetRoute.startsWith("/profile")) {
+      if (
+        location.pathname === "/profile" &&
+        targetRoute.startsWith("/profile")
+      ) {
         navigate(targetRoute)
       } else {
         navigate(targetRoute)
@@ -126,7 +135,7 @@ export function Navbar({
           {/* Quick Create CTA Button (Desktop only) */}
           <Button
             size="sm"
-            className="hidden xl:inline-flex gap-1.5 rounded-full font-semibold shadow-xs"
+            className="hidden gap-1.5 rounded-full font-semibold shadow-xs xl:inline-flex"
             onClick={() => handleItemClick("Create Event", "#create-new")}
           >
             <CalendarPlus className="size-3.5" />
@@ -145,7 +154,7 @@ export function Navbar({
             variant="ghost"
             size="icon"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
-            className="lg:hidden rounded-full"
+            className="rounded-full lg:hidden"
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
           >
             {mobileMenuOpen ? (

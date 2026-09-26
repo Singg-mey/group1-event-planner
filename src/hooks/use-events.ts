@@ -7,6 +7,7 @@ export function useEvents() {
   const [events, setEvents] = React.useState<SearchEvent[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<Error | null>(null)
+  const [refreshToken, setRefreshToken] = React.useState(0)
 
   React.useEffect(() => {
     let isActive = true
@@ -35,7 +36,9 @@ export function useEvents() {
     return () => {
       isActive = false
     }
-  }, [])
+  }, [refreshToken])
 
-  return { events, isLoading, error }
+  const refreshEvents = () => setRefreshToken((token) => token + 1)
+
+  return { events, isLoading, error, refreshEvents }
 }

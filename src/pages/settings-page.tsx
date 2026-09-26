@@ -19,7 +19,12 @@ import {
 
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { Avatar, AvatarFallback, AvatarImage, AvatarBadge } from "@/components/ui/avatar"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  AvatarBadge,
+} from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -42,12 +47,12 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { EditProfileModal } from "@/components/edit-profile-modal"
-import { useUserProfile, logoutUser } from "@/data/user"
+import { updateUserProfile, useUserProfile, logoutUser } from "@/data/user"
 import { useTheme } from "@/components/theme-provider"
 
 export function SettingsPage() {
   const navigate = useNavigate()
-  const [profile, saveProfile] = useUserProfile()
+  const [profile] = useUserProfile()
   const { theme, setTheme } = useTheme()
 
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false)
@@ -100,7 +105,8 @@ export function SettingsPage() {
                 Settings
               </h1>
               <p className="text-sm text-muted-foreground">
-                Manage your account credentials, notifications, appearance, and privacy.
+                Manage your account credentials, notifications, appearance, and
+                privacy.
               </p>
             </div>
             <Button
@@ -139,7 +145,7 @@ export function SettingsPage() {
               </CardAction>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-border/60 bg-muted/20 p-4">
+              <div className="flex flex-col gap-4 rounded-xl border border-border/60 bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-4">
                   <Avatar size="lg" className="size-14 ring-2 ring-primary/20">
                     {profile.avatarUrl ? (
@@ -155,13 +161,19 @@ export function SettingsPage() {
                   </Avatar>
                   <div className="flex flex-col">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-foreground">{profile.name}</span>
-                      <Badge className="bg-primary/10 text-primary text-[10px]">
+                      <span className="font-bold text-foreground">
+                        {profile.name}
+                      </span>
+                      <Badge className="bg-primary/10 text-[10px] text-primary">
                         {profile.role || "Event Organizer"}
                       </Badge>
                     </div>
-                    <span className="text-xs text-muted-foreground">@{profile.username}</span>
-                    <span className="text-xs text-muted-foreground">{profile.email}</span>
+                    <span className="text-xs text-muted-foreground">
+                      @{profile.username}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {profile.email}
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground sm:text-right">
@@ -170,7 +182,7 @@ export function SettingsPage() {
               </div>
 
               {/* Regional Preferences */}
-              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 pt-2">
+              <div className="mt-4 grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-muted-foreground uppercase">
                     Language
@@ -180,7 +192,9 @@ export function SettingsPage() {
                       <Globe className="size-4 text-muted-foreground" />
                       English (United States)
                     </span>
-                    <Badge variant="secondary" className="text-[10px]">Default</Badge>
+                    <Badge variant="secondary" className="text-[10px]">
+                      Default
+                    </Badge>
                   </div>
                 </div>
                 <div className="space-y-1.5">
@@ -188,8 +202,12 @@ export function SettingsPage() {
                     Timezone
                   </Label>
                   <div className="flex items-center justify-between rounded-xl border border-input bg-background px-3.5 py-2.5 text-sm">
-                    <span className="truncate">Indochina Time (ICT) • GMT+7</span>
-                    <span className="text-xs text-muted-foreground">Phnom Penh</span>
+                    <span className="truncate">
+                      Indochina Time (ICT) • GMT+7
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      Phnom Penh
+                    </span>
                   </div>
                 </div>
               </div>
@@ -216,14 +234,16 @@ export function SettingsPage() {
                   className={`flex flex-col items-center gap-2.5 rounded-2xl border p-4 text-center transition-all ${
                     theme === "light"
                       ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                      : "border-border/70 hover:border-primary/40 bg-card"
+                      : "border-border/70 bg-card hover:border-primary/40"
                   }`}
                 >
                   <div className="flex size-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
                     <Sun className="size-5" />
                   </div>
                   <span className="text-sm font-semibold">Light</span>
-                  <span className="text-xs text-muted-foreground">Clean, high-contrast day theme</span>
+                  <span className="text-xs text-muted-foreground">
+                    Clean, high-contrast day theme
+                  </span>
                 </button>
 
                 {/* Dark theme tile */}
@@ -233,14 +253,16 @@ export function SettingsPage() {
                   className={`flex flex-col items-center gap-2.5 rounded-2xl border p-4 text-center transition-all ${
                     theme === "dark"
                       ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                      : "border-border/70 hover:border-primary/40 bg-card"
+                      : "border-border/70 bg-card hover:border-primary/40"
                   }`}
                 >
                   <div className="flex size-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-500">
                     <Moon className="size-5" />
                   </div>
                   <span className="text-sm font-semibold">Dark</span>
-                  <span className="text-xs text-muted-foreground">Sleek, low-light evening theme</span>
+                  <span className="text-xs text-muted-foreground">
+                    Sleek, low-light evening theme
+                  </span>
                 </button>
 
                 {/* System theme tile */}
@@ -250,14 +272,16 @@ export function SettingsPage() {
                   className={`flex flex-col items-center gap-2.5 rounded-2xl border p-4 text-center transition-all ${
                     theme === "system"
                       ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                      : "border-border/70 hover:border-primary/40 bg-card"
+                      : "border-border/70 bg-card hover:border-primary/40"
                   }`}
                 >
                   <div className="flex size-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                     <Laptop className="size-5" />
                   </div>
                   <span className="text-sm font-semibold">System</span>
-                  <span className="text-xs text-muted-foreground">Follows your OS appearance</span>
+                  <span className="text-xs text-muted-foreground">
+                    Follows your OS appearance
+                  </span>
                 </button>
               </div>
             </CardContent>
@@ -271,51 +295,76 @@ export function SettingsPage() {
                 Notification Preferences
               </CardTitle>
               <CardDescription>
-                Choose how you want to be notified about your upcoming tickets and events.
+                Choose how you want to be notified about your upcoming tickets
+                and events.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between gap-4 py-1">
                 <div className="space-y-0.5">
-                  <div className="text-sm font-semibold text-foreground">Event Reminders</div>
+                  <div className="text-sm font-semibold text-foreground">
+                    Event Reminders
+                  </div>
                   <div className="text-xs text-muted-foreground">
-                    Receive alert emails 24 hours and 2 hours before events you hold tickets for.
+                    Receive alert emails 24 hours and 2 hours before events you
+                    hold tickets for.
                   </div>
                 </div>
-                <Switch checked={eventReminders} onCheckedChange={setEventReminders} />
+                <Switch
+                  checked={eventReminders}
+                  onCheckedChange={setEventReminders}
+                />
               </div>
               <Separator />
 
               <div className="flex items-center justify-between gap-4 py-1">
                 <div className="space-y-0.5">
-                  <div className="text-sm font-semibold text-foreground">Ticket & Purchase Updates</div>
+                  <div className="text-sm font-semibold text-foreground">
+                    Ticket & Purchase Updates
+                  </div>
                   <div className="text-xs text-muted-foreground">
-                    Instant receipts, QR code delivery, and admission status changes.
+                    Instant receipts, QR code delivery, and admission status
+                    changes.
                   </div>
                 </div>
-                <Switch checked={ticketUpdates} onCheckedChange={setTicketUpdates} />
+                <Switch
+                  checked={ticketUpdates}
+                  onCheckedChange={setTicketUpdates}
+                />
               </div>
               <Separator />
 
               <div className="flex items-center justify-between gap-4 py-1">
                 <div className="space-y-0.5">
-                  <div className="text-sm font-semibold text-foreground">Organizer Announcements</div>
+                  <div className="text-sm font-semibold text-foreground">
+                    Organizer Announcements
+                  </div>
                   <div className="text-xs text-muted-foreground">
-                    Direct messages and schedule updates from hosts of events you attend.
+                    Direct messages and schedule updates from hosts of events
+                    you attend.
                   </div>
                 </div>
-                <Switch checked={announcements} onCheckedChange={setAnnouncements} />
+                <Switch
+                  checked={announcements}
+                  onCheckedChange={setAnnouncements}
+                />
               </div>
               <Separator />
 
               <div className="flex items-center justify-between gap-4 py-1">
                 <div className="space-y-0.5">
-                  <div className="text-sm font-semibold text-foreground">Phnom Penh Weekend Digest</div>
+                  <div className="text-sm font-semibold text-foreground">
+                    Phnom Penh Weekend Digest
+                  </div>
                   <div className="text-xs text-muted-foreground">
-                    A curated Friday email with top rooftop mixers, gigs, and tech meetups.
+                    A curated Friday email with top rooftop mixers, gigs, and
+                    tech meetups.
                   </div>
                 </div>
-                <Switch checked={weeklyDigest} onCheckedChange={setWeeklyDigest} />
+                <Switch
+                  checked={weeklyDigest}
+                  onCheckedChange={setWeeklyDigest}
+                />
               </div>
             </CardContent>
           </Card>
@@ -334,23 +383,35 @@ export function SettingsPage() {
             <CardContent className="space-y-5">
               <div className="flex items-center justify-between gap-4 py-1">
                 <div className="space-y-0.5">
-                  <div className="text-sm font-semibold text-foreground">Public Profile Visibility</div>
+                  <div className="text-sm font-semibold text-foreground">
+                    Public Profile Visibility
+                  </div>
                   <div className="text-xs text-muted-foreground">
-                    Allow other attendees and organizers to view your bio and hosted events.
+                    Allow other attendees and organizers to view your bio and
+                    hosted events.
                   </div>
                 </div>
-                <Switch checked={publicProfile} onCheckedChange={setPublicProfile} />
+                <Switch
+                  checked={publicProfile}
+                  onCheckedChange={setPublicProfile}
+                />
               </div>
               <Separator />
 
               <div className="flex items-center justify-between gap-4 py-1">
                 <div className="space-y-0.5">
-                  <div className="text-sm font-semibold text-foreground">Show Tickets on Profile</div>
+                  <div className="text-sm font-semibold text-foreground">
+                    Show Tickets on Profile
+                  </div>
                   <div className="text-xs text-muted-foreground">
-                    Display badge count of events you are attending on your profile card.
+                    Display badge count of events you are attending on your
+                    profile card.
                   </div>
                 </div>
-                <Switch checked={showTicketsPublic} onCheckedChange={setShowTicketsPublic} />
+                <Switch
+                  checked={showTicketsPublic}
+                  onCheckedChange={setShowTicketsPublic}
+                />
               </div>
               <Separator />
 
@@ -362,27 +423,64 @@ export function SettingsPage() {
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <div className="space-y-1.5">
-                    <Label htmlFor="curr-pwd" className="text-xs text-muted-foreground">Current Password</Label>
-                    <Input id="curr-pwd" type="password" placeholder="••••••••" required />
+                    <Label
+                      htmlFor="curr-pwd"
+                      className="text-xs text-muted-foreground"
+                    >
+                      Current Password
+                    </Label>
+                    <Input
+                      id="curr-pwd"
+                      type="password"
+                      placeholder="••••••••"
+                      required
+                    />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="new-pwd" className="text-xs text-muted-foreground">New Password</Label>
-                    <Input id="new-pwd" type="password" placeholder="••••••••" required />
+                    <Label
+                      htmlFor="new-pwd"
+                      className="text-xs text-muted-foreground"
+                    >
+                      New Password
+                    </Label>
+                    <Input
+                      id="new-pwd"
+                      type="password"
+                      placeholder="••••••••"
+                      required
+                    />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="confirm-pwd" className="text-xs text-muted-foreground">Confirm New Password</Label>
-                    <Input id="confirm-pwd" type="password" placeholder="••••••••" required />
+                    <Label
+                      htmlFor="confirm-pwd"
+                      className="text-xs text-muted-foreground"
+                    >
+                      Confirm New Password
+                    </Label>
+                    <Input
+                      id="confirm-pwd"
+                      type="password"
+                      placeholder="••••••••"
+                      required
+                    />
                   </div>
                 </div>
                 <div className="flex items-center justify-between pt-1">
                   {passwordSaved ? (
                     <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
-                      <Check className="size-3.5" /> Password updated successfully!
+                      <Check className="size-3.5" /> Password updated
+                      successfully!
                     </span>
                   ) : (
-                    <span className="text-xs text-muted-foreground">Minimum 8 characters with numbers & symbols</span>
+                    <span className="text-xs text-muted-foreground">
+                      Minimum 8 characters with numbers & symbols
+                    </span>
                   )}
-                  <Button type="submit" size="sm" className="rounded-xl font-semibold">
+                  <Button
+                    type="submit"
+                    size="sm"
+                    className="rounded-xl font-semibold"
+                  >
                     Update Password
                   </Button>
                 </div>
@@ -395,7 +493,7 @@ export function SettingsPage() {
                 <div className="text-sm font-semibold">Active Sessions</div>
                 <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/20 p-3.5">
                   <div className="flex items-center gap-3">
-                    <div className="flex size-9 items-center justify-center rounded-xl bg-background border border-border text-foreground">
+                    <div className="flex size-9 items-center justify-center rounded-xl border border-border bg-background text-foreground">
                       <Laptop className="size-4" />
                     </div>
                     <div className="flex flex-col">
@@ -407,7 +505,10 @@ export function SettingsPage() {
                       </span>
                     </div>
                   </div>
-                  <Badge variant="secondary" className="text-[10px] text-emerald-600 font-semibold">
+                  <Badge
+                    variant="secondary"
+                    className="text-[10px] font-semibold text-emerald-600"
+                  >
                     Current
                   </Badge>
                 </div>
@@ -429,7 +530,9 @@ export function SettingsPage() {
             <CardContent className="space-y-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <div className="text-sm font-semibold text-foreground">Log out from all sessions</div>
+                  <div className="text-sm font-semibold text-foreground">
+                    Log out from all sessions
+                  </div>
                   <div className="text-xs text-muted-foreground">
                     Signs out your account from all browsers and mobile devices.
                   </div>
@@ -449,9 +552,12 @@ export function SettingsPage() {
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <div className="text-sm font-semibold text-destructive">Delete Account</div>
+                  <div className="text-sm font-semibold text-destructive">
+                    Delete Account
+                  </div>
                   <div className="text-xs text-muted-foreground">
-                    Permanently delete your profile, hosted events, and saved tickets.
+                    Permanently delete your profile, hosted events, and saved
+                    tickets.
                   </div>
                 </div>
                 <Button
@@ -483,21 +589,27 @@ export function SettingsPage() {
           avatarUrl: profile.avatarUrl,
         }}
         onSave={(data) => {
-          saveProfile(data)
+          return updateUserProfile(data)
         }}
       />
 
       {/* Logout Confirmation Dialog */}
       <Dialog open={isLogoutModalOpen} onOpenChange={setIsLogoutModalOpen}>
-        <DialogContent className="max-w-[400px] rounded-2xl p-6" showClose={false}>
+        <DialogContent
+          className="max-w-[400px] rounded-2xl p-6"
+          showClose={false}
+        >
           <div className="flex flex-col items-center gap-3 text-center">
             <div className="flex size-12 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
               <LogOut className="size-6" />
             </div>
             <DialogHeader className="items-center text-center">
-              <DialogTitle className="text-lg font-bold">Log out of Evently?</DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground text-center">
-                You will need to sign back in to access your tickets, organized events, and profile settings.
+              <DialogTitle className="text-lg font-bold">
+                Log out of Evently?
+              </DialogTitle>
+              <DialogDescription className="text-center text-xs text-muted-foreground">
+                You will need to sign back in to access your tickets, organized
+                events, and profile settings.
               </DialogDescription>
             </DialogHeader>
             <div className="flex w-full items-center gap-2 pt-3">
@@ -522,15 +634,21 @@ export function SettingsPage() {
 
       {/* Delete Account Confirmation Dialog */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <DialogContent className="max-w-[420px] rounded-2xl p-6" showClose={false}>
+        <DialogContent
+          className="max-w-[420px] rounded-2xl p-6"
+          showClose={false}
+        >
           <div className="flex flex-col items-center gap-3 text-center">
             <div className="flex size-12 items-center justify-center rounded-2xl bg-destructive/15 text-destructive">
               <Trash2 className="size-6" />
             </div>
             <DialogHeader className="items-center text-center">
-              <DialogTitle className="text-lg font-bold text-destructive">Delete your account?</DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground text-center">
-                This action is permanent and cannot be undone. All your booked passes, events, and profile data will be permanently wiped.
+              <DialogTitle className="text-lg font-bold text-destructive">
+                Delete your account?
+              </DialogTitle>
+              <DialogDescription className="text-center text-xs text-muted-foreground">
+                This action is permanent and cannot be undone. All your booked
+                passes, events, and profile data will be permanently wiped.
               </DialogDescription>
             </DialogHeader>
             <div className="flex w-full items-center gap-2 pt-3">

@@ -33,6 +33,7 @@ import {
 import { PastEventsSection } from "./components/past-event"
 import { CreateEvent, type CreateEventValues } from "./components/create-event"
 import { Footer } from "@/components/footer"
+import { useUserProfile } from "@/data/user"
 
 const CURRENT_EVENT: CurrentEventData = {
   title: "Sunset Rooftop Mixer",
@@ -46,7 +47,9 @@ const CURRENT_EVENT: CurrentEventData = {
 export function App() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { events } = useEvents()
+  const { events, refreshEvents } = useEvents()
+  const [profile] = useUserProfile()
+  const isLoggedIn = profile.isLoggedIn !== false
   // The event detail page's Back button hands back which tab to reopen
   const [activeItem, setActiveItem] = React.useState<string>(
     location.state?.activeItem ?? "Home"
@@ -73,10 +76,23 @@ export function App() {
   }, [location.pathname, location.hash])
 
   const handleNavigate = (item: string, eventType?: string) => {
+    if (item === "Create Event" && !isLoggedIn) {
+      navigate("/sign-in", { replace: false })
+      return
+    }
+
     setActiveItem(item)
     if (item === "Find Event") {
       setSelectedEventType(eventType ?? "All Categories")
     }
+  }
+
+  const openCreateEvent = () => {
+    if (!isLoggedIn) {
+      navigate("/sign-in")
+      return
+    }
+    setActiveItem("Create Event")
   }
 
   const categories = [
@@ -143,7 +159,10 @@ export function App() {
           initialCategory={selectedEventType}
         />
       ) : activeItem === "Create Event" ? (
-        <CreateEvent initialValues={createEventValues} />
+        <CreateEvent
+          initialValues={createEventValues}
+          onCreated={refreshEvents}
+        />
       ) : (
         <main className="mx-auto max-w-7xl space-y-8 px-4 py-4 sm:px-6 lg:px-8">
           {/* Hero Section */}
@@ -156,6 +175,16 @@ export function App() {
 
             <div className="grid items-center gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)]">
               <div className="max-w-2xl space-y-3">
+                {profile.isLoggedIn !== false && (
+                  <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    <Sparkles className="size-3.5" />
+                    <span>
+                      Welcome back, @
+                      {profile.username || profile.name || "guest"}
+                    </span>
+                  </div>
+                )}
+
                 <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                   <Sparkles className="size-3.5" />
                   <span>Next-Gen Event Experience</span>
@@ -185,7 +214,7 @@ export function App() {
                     variant="outline"
                     size="lg"
                     className="gap-2 rounded-full"
-                    onClick={() => setActiveItem("Create Event")}
+                    onClick={openCreateEvent}
                   >
                     <PlusCircle className="size-4 text-primary" />
                     Create Event
@@ -196,13 +225,17 @@ export function App() {
               <div className="flex flex-col gap-2">
                 <Quickstart
                   onStart={(values) => {
+                    if (!isLoggedIn) {
+                      navigate("/sign-in")
+                      return
+                    }
                     setCreateEventValues(values)
                     setActiveItem("Create Event")
                   }}
                 />
                 <CurrentEvent
                   event={CURRENT_EVENT}
-                  onManage={() => setActiveItem("Create Event")}
+                  onManage={openCreateEvent}
                 />
               </div>
             </div>

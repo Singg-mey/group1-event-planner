@@ -20,7 +20,12 @@ import {
 } from "lucide-react"
 import { cn } from "cn"
 
-import { Avatar, AvatarImage, AvatarFallback, AvatarBadge } from "@/components/ui/avatar"
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  AvatarBadge,
+} from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -32,9 +37,13 @@ import {
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress"
+import {
+  Progress,
+  ProgressLabel,
+  ProgressValue,
+} from "@/components/ui/progress"
 import { EditProfileModal } from "@/components/edit-profile-modal"
-import { useUserProfile } from "@/data/user"
+import { updateUserProfile, useUserProfile } from "@/data/user"
 
 export interface ProfileDetailData {
   name: string
@@ -69,10 +78,30 @@ const STATS: {
   icon: React.ComponentType<{ className?: string }>
   tint: string
 }[] = [
-  { label: "Events Hosted", valueKey: "hostedCount", icon: CalendarDays, tint: "bg-primary/10 text-primary" },
-  { label: "Tickets Owned", valueKey: "ticketsCount", icon: Ticket, tint: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
-  { label: "Saved Events", valueKey: "savedCount", icon: Bookmark, tint: "bg-sky-500/10 text-sky-600 dark:text-sky-400" },
-  { label: "Followers", valueKey: "followingCount", icon: Users, tint: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+  {
+    label: "Events Hosted",
+    valueKey: "hostedCount",
+    icon: CalendarDays,
+    tint: "bg-primary/10 text-primary",
+  },
+  {
+    label: "Tickets Owned",
+    valueKey: "ticketsCount",
+    icon: Ticket,
+    tint: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  },
+  {
+    label: "Saved Events",
+    valueKey: "savedCount",
+    icon: Bookmark,
+    tint: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
+  },
+  {
+    label: "Followers",
+    valueKey: "followingCount",
+    icon: Users,
+    tint: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  },
 ]
 
 interface TicketItem {
@@ -227,13 +256,14 @@ export function ProfileDetail({
   onEditProfile,
   className,
 }: ProfileDetailProps) {
-  const [profile, saveProfile] = useUserProfile()
+  const [profile] = useUserProfile()
 
   // Merge profile state with initial props, ensuring avatar property fallback
   const rawUser = initialUser ? { ...initialUser, ...profile } : profile
   const currentUser: ProfileDetailData = {
     ...rawUser,
-    avatarUrl: rawUser.avatarUrl || (rawUser as { avatar?: string }).avatar || "",
+    avatarUrl:
+      rawUser.avatarUrl || (rawUser as { avatar?: string }).avatar || "",
   }
 
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false)
@@ -259,7 +289,7 @@ export function ProfileDetail({
         <AvatarFallback className="bg-gradient-to-tr from-primary/20 to-sky-500/20 text-xl font-bold text-primary md:text-2xl">
           {initials}
         </AvatarFallback>
-        <AvatarBadge className="size-4 md:size-5 bottom-1 right-1 md:bottom-1.5 md:right-1.5 ring-2 md:ring-3 ring-background bg-emerald-500 z-20 pointer-events-none" />
+        <AvatarBadge className="pointer-events-none right-1 bottom-1 z-20 size-4 bg-emerald-500 ring-2 ring-background md:right-1.5 md:bottom-1.5 md:size-5 md:ring-3" />
       </Avatar>
       <button
         type="button"
@@ -370,7 +400,11 @@ export function ProfileDetail({
                 <Pencil className="size-3.5" />
                 Edit Profile
               </Button>
-              <Button size="sm" className="gap-1.5 rounded-full font-semibold" onClick={onEditProfile}>
+              <Button
+                size="sm"
+                className="gap-1.5 rounded-full font-semibold"
+                onClick={onEditProfile}
+              >
                 <ArrowRight className="size-3.5" />
                 Organizer Hub
               </Button>
@@ -388,11 +422,16 @@ export function ProfileDetail({
                   key={stat.label}
                   className="flex items-center gap-3 rounded-2xl border border-border/60 bg-muted/30 p-3.5 transition-colors hover:border-primary/30"
                 >
-                  <div className={cn("flex size-9 shrink-0 items-center justify-center rounded-xl", stat.tint)}>
+                  <div
+                    className={cn(
+                      "flex size-9 shrink-0 items-center justify-center rounded-xl",
+                      stat.tint
+                    )}
+                  >
                     <Icon className="size-4.5" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-lg leading-tight font-bold tabular-nums text-foreground">
+                    <span className="text-lg leading-tight font-bold text-foreground tabular-nums">
                       {currentUser[stat.valueKey] ?? 0}
                     </span>
                     <span className="text-[11px] font-medium text-muted-foreground">
@@ -409,22 +448,34 @@ export function ProfileDetail({
       {/* Tabs */}
       <Tabs defaultValue={defaultTab}>
         <TabsList className="h-auto w-full gap-1 rounded-full bg-muted/60 p-1 sm:w-fit">
-          <TabsTrigger value="overview" className="gap-1.5 rounded-full data-active:bg-background">
+          <TabsTrigger
+            value="overview"
+            className="gap-1.5 rounded-full data-active:bg-background"
+          >
             <User className="size-4" />
             Overview
           </TabsTrigger>
-          <TabsTrigger value="tickets" className="gap-1.5 rounded-full data-active:bg-background">
+          <TabsTrigger
+            value="tickets"
+            className="gap-1.5 rounded-full data-active:bg-background"
+          >
             <Ticket className="size-4" />
             My Tickets
             <span className="ml-0.5 rounded-full bg-muted-foreground/15 px-1.5 text-[11px]">
               {currentUser.ticketsCount}
             </span>
           </TabsTrigger>
-          <TabsTrigger value="hosted" className="gap-1.5 rounded-full data-active:bg-background">
+          <TabsTrigger
+            value="hosted"
+            className="gap-1.5 rounded-full data-active:bg-background"
+          >
             <CalendarDays className="size-4" />
             Hosted Events
           </TabsTrigger>
-          <TabsTrigger value="saved" className="gap-1.5 rounded-full data-active:bg-background">
+          <TabsTrigger
+            value="saved"
+            className="gap-1.5 rounded-full data-active:bg-background"
+          >
             <Bookmark className="size-4" />
             Saved
             <span className="ml-0.5 rounded-full bg-muted-foreground/15 px-1.5 text-[11px]">
@@ -439,7 +490,9 @@ export function ProfileDetail({
             {/* About / bio */}
             <Card size="sm">
               <CardHeader>
-                <CardTitle className="text-base font-semibold">About me</CardTitle>
+                <CardTitle className="text-base font-semibold">
+                  About me
+                </CardTitle>
                 <CardAction className="flex items-center gap-2">
                   <Button
                     variant="ghost"
@@ -456,7 +509,7 @@ export function ProfileDetail({
                 </CardAction>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+                <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
                   {currentUser.bio}
                 </p>
               </CardContent>
@@ -465,7 +518,9 @@ export function ProfileDetail({
             {/* Recent activity */}
             <Card size="sm">
               <CardHeader>
-                <CardTitle className="text-base font-semibold">Recent activity</CardTitle>
+                <CardTitle className="text-base font-semibold">
+                  Recent activity
+                </CardTitle>
                 <CardAction>
                   <Badge variant="secondary" className="gap-1 text-[11px]">
                     <Clock className="size-3" />
@@ -510,7 +565,9 @@ export function ProfileDetail({
           {/* Upcoming events preview */}
           <Card size="sm">
             <CardHeader>
-              <CardTitle className="text-base font-semibold">My next event</CardTitle>
+              <CardTitle className="text-base font-semibold">
+                My next event
+              </CardTitle>
               <CardAction>
                 <button
                   type="button"
@@ -529,7 +586,11 @@ export function ProfileDetail({
         {/* ---- Tickets ---- */}
         <TabsContent value="tickets" className="mt-4 space-y-3">
           {TICKETS.map((ticket) => (
-            <Card key={ticket.id} size="sm" className="transition-colors hover:border-primary/30">
+            <Card
+              key={ticket.id}
+              size="sm"
+              className="transition-colors hover:border-primary/30"
+            >
               <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-center gap-4">
                   <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -558,12 +619,18 @@ export function ProfileDetail({
                 </div>
                 <div className="flex items-center gap-4 lg:gap-6">
                   <div className="text-right">
-                    <div className="text-base font-bold text-foreground">{ticket.price}</div>
+                    <div className="text-base font-bold text-foreground">
+                      {ticket.price}
+                    </div>
                     <div className="font-mono text-[11px] text-muted-foreground">
                       {ticket.code}
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" className="rounded-full font-semibold">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full font-semibold"
+                  >
                     View ticket
                   </Button>
                 </div>
@@ -673,10 +740,10 @@ export function ProfileDetail({
           bio: currentUser.bio ?? "",
           location: currentUser.location ?? "",
           email: currentUser.email,
-          avatarUrl: currentUser.avatarUrl || currentUser.avatar || "", 
+          avatarUrl: currentUser.avatarUrl || currentUser.avatar || "",
         }}
         onSave={(data) => {
-          saveProfile({
+          return updateUserProfile({
             name: data.name,
             username: data.username,
             bio: data.bio,
@@ -705,8 +772,14 @@ function HostedEventCard({ event }: { event: (typeof HOSTED_EVENTS)[number] }) {
     >
       <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-xl bg-muted sm:w-44">
-          <img src={event.image} alt={event.title} className="size-full object-cover" />
-          <Badge className={cn("absolute top-2 right-2 text-[10px]", statusTint)}>
+          <img
+            src={event.image}
+            alt={event.title}
+            className="size-full object-cover"
+          />
+          <Badge
+            className={cn("absolute top-2 right-2 text-[10px]", statusTint)}
+          >
             {event.status}
           </Badge>
         </div>
@@ -741,9 +814,14 @@ function HostedEventCard({ event }: { event: (typeof HOSTED_EVENTS)[number] }) {
           <div className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Users className="size-3.5" />
-              {Math.round((event.confirmed / event.capacity) * 100)}% capacity filled
+              {Math.round((event.confirmed / event.capacity) * 100)}% capacity
+              filled
             </span>
-            <Button variant="ghost" size="sm" className="gap-1 text-xs font-semibold text-primary">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 text-xs font-semibold text-primary"
+            >
               Manage <ArrowRight className="size-3" />
             </Button>
           </div>

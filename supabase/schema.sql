@@ -21,9 +21,56 @@ create table if not exists public.events (
 alter table public.events enable row level security;
 
 drop policy if exists "Anyone can read events" on public.events;
-create policy "Anyone can read events"
+drop policy if exists "Public events and own events are readable" on public.events;
+create policy "Public events and own events are readable"
   on public.events for select
-  using (true);
+  using (visibility = 'public' or organizer_id = (select auth.uid())::text);
+
+drop policy if exists "Authenticated users can create their own events" on public.events;
+create policy "Authenticated users can create their own events"
+  on public.events for insert
+  with check (organizer_id = (select auth.uid())::text);
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'event-covers',
+  'event-covers',
+  false,
+  5242880,
+  array['image/jpeg', 'image/png', 'image/webp']
+)
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "Users can upload their own event covers" on storage.objects;
+create policy "Users can upload their own event covers"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'event-covers'
+    and (storage.foldername(name))[1] = (select auth.uid())::text
+  );
+
+drop policy if exists "Event covers are visible with their event" on storage.objects;
+create policy "Event covers are visible with their event"
+  on storage.objects for select
+  using (
+    bucket_id = 'event-covers'
+    and exists (
+      select 1 from public.events
+      where cover_image = 'storage:event-covers/' || name
+        and (visibility = 'public' or organizer_id = (select auth.uid())::text)
+    )
+  );
+
+drop policy if exists "Users can remove their own event covers" on storage.objects;
+create policy "Users can remove their own event covers"
+  on storage.objects for delete
+  using (
+    bucket_id = 'event-covers'
+    and (storage.foldername(name))[1] = (select auth.uid())::text
+  );
 
 insert into public.events (
   id, organizer_id, title, description, category, tags, start_datetime,

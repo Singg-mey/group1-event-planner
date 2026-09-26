@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { loginUser, logoutUser } from "@/data/user"
+import { logoutUser } from "@/data/user"
 
 import { EVENT_CATEGORIES } from "./data"
 import type { NavItemClick, NavUser, ThemeName } from "./types"
@@ -39,9 +39,9 @@ export function MobileMenu({
   onNav: NavItemClick
 }) {
   return (
-    <div className="border-b border-border bg-background/95 px-4 pt-2 pb-6 backdrop-blur-2xl lg:hidden animate-in slide-in-from-top-4 duration-200">
-      <div className="relative mb-4 mt-2">
-        <Search className="pointer-events-none absolute left-3 top-2.5 size-4 text-muted-foreground" />
+    <div className="animate-in border-b border-border bg-background/95 px-4 pt-2 pb-6 backdrop-blur-2xl duration-200 slide-in-from-top-4 lg:hidden">
+      <div className="relative mt-2 mb-4">
+        <Search className="pointer-events-none absolute top-2.5 left-3 size-4 text-muted-foreground" />
         <Input
           type="text"
           value={searchQuery}
@@ -58,7 +58,7 @@ export function MobileMenu({
           className={cn(
             "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
             activeItem === "Home"
-              ? "bg-primary/10 text-primary font-semibold"
+              ? "bg-primary/10 font-semibold text-primary"
               : "text-foreground hover:bg-muted"
           )}
         >
@@ -72,7 +72,7 @@ export function MobileMenu({
           className={cn(
             "flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
             activeItem === "Create Event"
-              ? "bg-primary/10 text-primary font-semibold"
+              ? "bg-primary/10 font-semibold text-primary"
               : "text-foreground hover:bg-muted"
           )}
         >
@@ -80,7 +80,7 @@ export function MobileMenu({
             <CalendarPlus className="size-4" />
             <span>Create Event</span>
           </div>
-          <Badge variant="default" className="text-[10px] py-0 px-2">
+          <Badge variant="default" className="px-2 py-0 text-[10px]">
             New
           </Badge>
         </a>
@@ -91,7 +91,7 @@ export function MobileMenu({
           className={cn(
             "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
             activeItem === "Find Event"
-              ? "bg-primary/10 text-primary font-semibold"
+              ? "bg-primary/10 font-semibold text-primary"
               : "text-foreground hover:bg-muted"
           )}
         >
@@ -118,7 +118,7 @@ export function MobileMenu({
           className={cn(
             "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
             activeItem === "About"
-              ? "bg-primary/10 text-primary font-semibold"
+              ? "bg-primary/10 font-semibold text-primary"
               : "text-foreground hover:bg-muted"
           )}
         >
@@ -133,8 +133,10 @@ export function MobileMenu({
             <Button
               variant="default"
               size="sm"
-              onClick={() => loginUser()}
-              className="rounded-full gap-2 px-4 text-xs font-semibold shadow-xs"
+              onClick={() => {
+                window.location.href = "/sign-in"
+              }}
+              className="gap-2 rounded-full px-4 text-xs font-semibold shadow-xs"
             >
               <User className="size-3.5" />
               <span>Sign In</span>
@@ -162,8 +164,12 @@ export function MobileMenu({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <Avatar size="sm" className="size-8">
-                  {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name} />}
-                  <AvatarFallback className="text-xs">{user.name[0]}</AvatarFallback>
+                  {user.avatarUrl && (
+                    <AvatarImage src={user.avatarUrl} alt={user.name} />
+                  )}
+                  <AvatarFallback className="text-xs">
+                    {user.name[0]}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
                   <span className="text-xs font-semibold text-foreground">
@@ -197,7 +203,7 @@ export function MobileMenu({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 rounded-xl text-xs gap-1.5 font-medium"
+                className="h-8 gap-1.5 rounded-xl text-xs font-medium"
                 onClick={(e) => onNav("Profile", "/profile", e)}
               >
                 <User className="size-3.5" />
@@ -206,7 +212,7 @@ export function MobileMenu({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 rounded-xl text-xs gap-1.5 font-medium"
+                className="h-8 gap-1.5 rounded-xl text-xs font-medium"
                 onClick={(e) => onNav("Settings", "/settings", e)}
               >
                 <Settings className="size-3.5" />
@@ -215,7 +221,7 @@ export function MobileMenu({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 rounded-xl text-xs gap-1.5 font-medium text-destructive hover:text-destructive hover:bg-destructive/10"
+                className="h-8 gap-1.5 rounded-xl text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive"
                 onClick={() => {
                   logoutUser()
                   onNav("Logout", "#logout")

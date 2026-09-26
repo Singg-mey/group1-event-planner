@@ -182,7 +182,7 @@ export function WorkshopsLearningIcon({ className }: { className?: string }) {
   )
 }
 
-export interface CategoryItem {
+interface CategoryItem {
   id: string
   name: string
   shortKey: string
@@ -192,7 +192,7 @@ export interface CategoryItem {
   icon: React.ComponentType<{ className?: string }>
 }
 
-export const CATEGORIES: CategoryItem[] = [
+const CATEGORIES: CategoryItem[] = [
   {
     id: "cat_music",
     name: "Music & Concerts",
@@ -337,18 +337,21 @@ export function CategoryCarousel({
   }
 
   return (
-    <section className="relative space-y-4 py-2" aria-label="Event Categories Carousel">
+    <section
+      className="relative space-y-4 py-2"
+      aria-label="Event Categories Carousel"
+    >
       {/* Header with Title & Navigation Controls */}
       <div className="flex items-end justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary uppercase tracking-wider mb-1">
+          <div className="mb-1 inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-primary uppercase">
             <Compass className="size-3.5" />
             <span>Curated Collections</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+          <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
             Browse by Category
           </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+          <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
             Discover experiences tailored to your passions and vibe
           </p>
         </div>
@@ -359,21 +362,21 @@ export function CategoryCarousel({
             variant={selectedCategory === "All" ? "default" : "outline"}
             size="sm"
             onClick={() => onSelectCategory("All")}
-            className="rounded-full text-xs font-medium h-9 px-3.5 shadow-2xs"
+            className="h-9 rounded-full px-3.5 text-xs font-medium shadow-2xs"
           >
             All Events
           </Button>
 
-          <div className="flex items-center gap-1.5 ml-1">
+          <div className="ml-1 flex items-center gap-1.5">
             <Button
               variant="outline"
               size="icon"
               disabled={!canScrollLeft}
               onClick={() => scroll("left")}
               className={cn(
-                "size-9 rounded-full border-border/80 transition-all shadow-2xs",
+                "size-9 rounded-full border-border/80 shadow-2xs transition-all",
                 !canScrollLeft
-                  ? "opacity-35 cursor-not-allowed"
+                  ? "cursor-not-allowed opacity-35"
                   : "hover:border-primary hover:bg-primary/10 hover:text-primary active:scale-95"
               )}
               aria-label="Scroll left in categories"
@@ -387,9 +390,9 @@ export function CategoryCarousel({
               disabled={!canScrollRight}
               onClick={() => scroll("right")}
               className={cn(
-                "size-9 rounded-full border-border/80 transition-all shadow-2xs",
+                "size-9 rounded-full border-border/80 shadow-2xs transition-all",
                 !canScrollRight
-                  ? "opacity-35 cursor-not-allowed"
+                  ? "cursor-not-allowed opacity-35"
                   : "hover:border-primary hover:bg-primary/10 hover:text-primary active:scale-95"
               )}
               aria-label="Scroll right in categories"
@@ -401,17 +404,17 @@ export function CategoryCarousel({
       </div>
 
       {/* Carousel Container */}
-      <div className="relative group">
+      <div className="group relative">
         {/* Subtle gradient edges to hint scrollability */}
         {canScrollLeft && (
           <div
-            className="pointer-events-none absolute left-0 top-0 bottom-0 z-10 w-10 bg-gradient-to-r from-background to-transparent transition-opacity"
+            className="pointer-events-none absolute top-0 bottom-0 left-0 z-10 w-10 bg-gradient-to-r from-background to-transparent transition-opacity"
             aria-hidden="true"
           />
         )}
         {canScrollRight && (
           <div
-            className="pointer-events-none absolute right-0 top-0 bottom-0 z-10 w-10 bg-gradient-to-l from-background to-transparent transition-opacity"
+            className="pointer-events-none absolute top-0 right-0 bottom-0 z-10 w-10 bg-gradient-to-l from-background to-transparent transition-opacity"
             aria-hidden="true"
           />
         )}
@@ -419,7 +422,7 @@ export function CategoryCarousel({
         {/* Scrollable Track */}
         <div
           ref={containerRef}
-          className="flex items-stretch gap-4 overflow-x-auto scroll-smooth py-3 px-1 snap-x snap-mandatory no-scrollbar"
+          className="no-scrollbar flex snap-x snap-mandatory items-stretch gap-4 overflow-x-auto scroll-smooth px-1 py-3"
         >
           {CATEGORIES.map((cat) => {
             const active = isSelected(cat)
@@ -439,18 +442,18 @@ export function CategoryCarousel({
                     }
                   }}
                   className={cn(
-                    "group relative flex w-[145px] sm:w-[165px] h-[165px] sm:h-[185px] shrink-0 snap-start flex-col items-center justify-between rounded-2xl sm:rounded-3xl p-5 text-center transition-all duration-300 select-none cursor-pointer",
+                    "group relative flex h-[165px] w-[145px] shrink-0 cursor-pointer snap-start flex-col items-center justify-between rounded-2xl p-5 text-center transition-all duration-300 select-none sm:h-[185px] sm:w-[165px] sm:rounded-3xl",
                     "border bg-card shadow-2xs",
                     active
-                      ? "border-primary bg-primary/10 ring-2 ring-primary/30 shadow-md shadow-primary/15"
-                      : "border-border/80 hover:border-primary/60 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary/10 hover:bg-primary/3"
+                      ? "border-primary bg-primary/10 shadow-md ring-2 shadow-primary/15 ring-primary/30"
+                      : "border-border/80 hover:-translate-y-1.5 hover:border-primary/60 hover:bg-primary/3 hover:shadow-xl hover:shadow-primary/10"
                   )}
                   aria-pressed={active}
                   aria-label={`Category: ${cat.name}`}
                 >
                   {/* Active Selected Check Badge */}
                   {active && (
-                    <span className="absolute top-3 right-3 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs animate-in zoom-in-75">
+                    <span className="absolute top-3 right-3 flex size-5 animate-in items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs zoom-in-75">
                       <Check className="size-3 stroke-[3]" />
                     </span>
                   )}
@@ -459,13 +462,13 @@ export function CategoryCarousel({
                   <div className="flex flex-1 items-center justify-center pt-2">
                     <div
                       className={cn(
-                        "transition-transform duration-300 text-primary",
+                        "text-primary transition-transform duration-300",
                         active
                           ? "scale-110"
                           : "group-hover:scale-115 group-hover:rotate-1"
                       )}
                     >
-                      <Icon className="size-11 sm:size-13 drop-shadow-2xs" />
+                      <Icon className="drop-shadow-2xs size-11 sm:size-13" />
                     </div>
                   </div>
 
@@ -473,9 +476,9 @@ export function CategoryCarousel({
                   <div className="w-full pt-2">
                     <span
                       className={cn(
-                        "block text-xs sm:text-sm font-semibold tracking-tight leading-snug transition-colors line-clamp-2",
+                        "line-clamp-2 block text-xs leading-snug font-semibold tracking-tight transition-colors sm:text-sm",
                         active
-                          ? "text-primary font-bold"
+                          ? "font-bold text-primary"
                           : "text-foreground group-hover:text-primary"
                       )}
                     >
@@ -500,7 +503,7 @@ export function CategoryCarousel({
                         <h4 className="text-sm font-bold text-foreground">
                           {cat.name}
                         </h4>
-                        <span className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                        <span className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
                           <Calendar className="size-3 text-primary" />
                           {cat.eventCount} Upcoming Events
                         </span>
@@ -509,18 +512,18 @@ export function CategoryCarousel({
 
                     <Badge
                       variant="outline"
-                      className="rounded-full text-[10px] border-primary/30 text-primary bg-primary/5 font-semibold px-2"
+                      className="rounded-full border-primary/30 bg-primary/5 px-2 text-[10px] font-semibold text-primary"
                     >
-                      <Sparkles className="size-2.5 mr-1" />
+                      <Sparkles className="mr-1 size-2.5" />
                       Popular
                     </Badge>
                   </div>
 
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                  <p className="text-xs leading-relaxed text-muted-foreground">
                     {cat.description}
                   </p>
 
-                  <div className="space-y-1.5 pt-1 border-t border-border/50">
+                  <div className="space-y-1.5 border-t border-border/50 pt-1">
                     <div className="text-[11px] font-medium text-muted-foreground">
                       Trending Highlights
                     </div>

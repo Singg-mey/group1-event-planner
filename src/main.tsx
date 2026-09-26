@@ -10,6 +10,8 @@ import EventDetailPage from "./pages/event-detail-page.tsx"
 import SettingsPage from "./pages/settings-page.tsx"
 import MyTicketsPage from "./pages/MyTicketsPage.tsx"
 import SavedEventsPage from "./pages/SavedEventsPage.tsx"
+import SignInPage from "./pages/sign-in-page.tsx"
+import SignUpPage from "./pages/sign-up-page.tsx"
 import { ThemeProvider } from "@/components/theme-provider.tsx"
 
 createRoot(document.getElementById("root")!).render(
@@ -23,6 +25,8 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/tickets" element={<MyTicketsPage />} />
           <Route path="/saved" element={<SavedEventsPage />} />
+          <Route path="/sign-in" element={<SignInPage />} />
+          <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="/events/:id" element={<EventDetailPage />} />
         </Routes>
       </BrowserRouter>

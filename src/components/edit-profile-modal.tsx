@@ -22,7 +22,7 @@ interface EditProfileModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   initialData?: Partial<EditProfileFormData>
-  onSave?: (data: EditProfileFormData) => void
+  onSave?: (data: EditProfileFormData) => void | Promise<unknown>
 }
 
 export function EditProfileModal({
@@ -31,28 +31,49 @@ export function EditProfileModal({
   initialData,
   onSave,
 }: EditProfileModalProps) {
-  const [fullName, setFullName] = React.useState(initialData?.name ?? "Chuonchetra Chuot")
-  const [username, setUsername] = React.useState(initialData?.username ?? "chuonchetra")
+  const [fullName, setFullName] = React.useState(
+    initialData?.name ?? "Chuonchetra Chuot"
+  )
+  const [username, setUsername] = React.useState(
+    initialData?.username ?? "chuonchetra"
+  )
   const [bio, setBio] = React.useState(
     initialData?.bio ??
       "Event organizer & party enthusiast in Phnom Penh. Bringing people together through music and nightlife gatherings."
   )
-  const [location, setLocation] = React.useState(initialData?.location ?? "Phnom Penh, Cambodia")
-  const [email, setEmail] = React.useState(initialData?.email ?? "chuonchetra@example.com")
+  const [location, setLocation] = React.useState(
+    initialData?.location ?? "Phnom Penh, Cambodia"
+  )
+  const [email, setEmail] = React.useState(
+    initialData?.email ?? "chuonchetra@example.com"
+  )
   const [avatarUrl, setAvatarUrl] = React.useState(initialData?.avatarUrl || "")
+  const [isSaving, setIsSaving] = React.useState(false)
+  const [saveError, setSaveError] = React.useState("")
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
-  // Sync all internal form states whenever modal opens or initialData changes
-  React.useEffect(() => {
-    if (open && initialData) {
-      if (initialData.name !== undefined) setFullName(initialData.name)
-      if (initialData.username !== undefined) setUsername(initialData.username)
-      if (initialData.bio !== undefined) setBio(initialData.bio)
-      if (initialData.location !== undefined) setLocation(initialData.location)
-      if (initialData.email !== undefined) setEmail(initialData.email)
-      setAvatarUrl(initialData.avatarUrl || "")
+  const hydrateFormState = React.useCallback(
+    (data?: Partial<EditProfileFormData>) => {
+      setFullName(data?.name ?? "Chuonchetra Chuot")
+      setUsername(data?.username ?? "chuonchetra")
+      setBio(
+        data?.bio ??
+          "Event organizer & party enthusiast in Phnom Penh. Bringing people together through music and nightlife gatherings."
+      )
+      setLocation(data?.location ?? "Phnom Penh, Cambodia")
+      setEmail(data?.email ?? "chuonchetra@example.com")
+      setAvatarUrl(data?.avatarUrl || "")
+    },
+    []
+  )
+
+  const handleDialogOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      hydrateFormState(initialData)
+      setSaveError("")
     }
-  }, [open, initialData])
+    onOpenChange(nextOpen)
+  }
 
   const handleUploadClick = () => {
     fileInputRef.current?.click()
@@ -78,21 +99,33 @@ export function EditProfileModal({
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onSave?.({
-      name: fullName.trim() || "User",
-      username: username.trim().replace(/^@/, ""),
-      bio: bio.trim(),
-      location: location.trim(),
-      email: email.trim(),
-      avatarUrl,
-    })
-    onOpenChange(false)
+    setIsSaving(true)
+    setSaveError("")
+    try {
+      await onSave?.({
+        name: fullName.trim() || "User",
+        username: username.trim().replace(/^@/, ""),
+        bio: bio.trim(),
+        location: location.trim(),
+        email: email.trim(),
+        avatarUrl,
+      })
+      handleDialogOpenChange(false)
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Unable to save profile changes."
+      )
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent
         className="max-w-[460px] gap-0 overflow-hidden rounded-[22px] border border-border/80 bg-background p-6 shadow-2xl sm:max-w-[480px]"
         showClose={false}
@@ -110,7 +143,7 @@ export function EditProfileModal({
 
           <button
             type="button"
-            onClick={() => onOpenChange(false)}
+            onClick={() => handleDialogOpenChange(false)}
             className="flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             aria-label="Close"
           >
@@ -264,7 +297,7 @@ export function EditProfileModal({
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="Phnom Penh, Cambodia"
-                  className="w-full rounded-xl border border-input bg-background pr-3.5 pl-10 py-2.5 text-sm text-foreground shadow-2xs transition-all outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+                  className="w-full rounded-xl border border-input bg-background py-2.5 pr-3.5 pl-10 text-sm text-foreground shadow-2xs transition-all outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
                 />
               </div>
             </div>
@@ -285,26 +318,32 @@ export function EditProfileModal({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="chuonchetra@example.com"
-                  className="w-full rounded-xl border border-input bg-background pr-3.5 pl-10 py-2.5 text-sm text-foreground shadow-2xs transition-all outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+                  className="w-full rounded-xl border border-input bg-background py-2.5 pr-3.5 pl-10 text-sm text-foreground shadow-2xs transition-all outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
                 />
               </div>
             </div>
           </div>
 
           {/* Modal Footer Actions */}
+          {saveError && (
+            <p role="alert" className="text-sm text-destructive">
+              {saveError}
+            </p>
+          )}
           <div className="flex items-center justify-end gap-2.5 pt-3">
             <button
               type="button"
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleDialogOpenChange(false)}
               className="rounded-xl border border-input bg-background px-4 py-2 text-sm font-semibold text-foreground shadow-2xs transition-colors hover:bg-muted active:scale-[0.98]"
             >
               Cancel
             </button>
             <button
               type="submit"
+              disabled={isSaving}
               className="rounded-xl bg-[#3b5bf5] px-5 py-2 text-sm font-semibold text-white shadow-xs transition-all hover:bg-[#2f4ee0] active:scale-[0.98]"
             >
-              Save Changes
+              {isSaving ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>

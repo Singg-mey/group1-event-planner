@@ -13,7 +13,12 @@ import {
 } from "lucide-react"
 import { cn } from "cn"
 
-import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  Avatar,
+  AvatarBadge,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
@@ -35,7 +40,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { EditProfileModal } from "@/components/edit-profile-modal"
-import { useUserProfile, loginUser, logoutUser } from "@/data/user"
+import { updateUserProfile, useUserProfile, logoutUser } from "@/data/user"
 
 import type { NavItemClick, NavUser, ThemeName } from "./types"
 
@@ -53,12 +58,13 @@ export function ProfileMenu({
   onThemeChange: (theme: ThemeName) => void
   onNav: NavItemClick
 }) {
-  const [profile, saveProfile] = useUserProfile()
+  const [profile] = useUserProfile()
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false)
   const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false)
 
   // Fallback chain: profile state -> user prop -> default picture URL
-  const currentAvatarUrl = profile?.avatarUrl || user?.avatarUrl || DEFAULT_AVATAR_URL
+  const currentAvatarUrl =
+    profile?.avatarUrl || user?.avatarUrl || DEFAULT_AVATAR_URL
   const currentName = profile?.name || user?.name || "User"
 
   if (profile?.isLoggedIn === false || user?.isLoggedIn === false) {
@@ -66,8 +72,10 @@ export function ProfileMenu({
       <Button
         variant="outline"
         size="sm"
-        className="rounded-full gap-2 px-3.5 h-9 font-semibold text-xs border-primary/20 hover:border-primary/50 hover:bg-primary/5 transition-all shadow-xs"
-        onClick={() => loginUser()}
+        className="h-9 gap-2 rounded-full border-primary/20 px-3.5 text-xs font-semibold shadow-xs transition-all hover:border-primary/50 hover:bg-primary/5"
+        onClick={() => {
+          window.location.href = "/sign-in"
+        }}
       >
         <User className="size-3.5 text-primary" />
         <span>Sign In</span>
@@ -79,7 +87,7 @@ export function ProfileMenu({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger
-          className="group relative flex items-center justify-center shrink-0 rounded-full outline-none transition-transform focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-95"
+          className="group relative flex shrink-0 items-center justify-center rounded-full transition-transform outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-95"
           aria-label="User profile menu"
         >
           <Avatar
@@ -93,7 +101,7 @@ export function ProfileMenu({
                 .map((n) => n[0])
                 .join("")}
             </AvatarFallback>
-            <AvatarBadge className="size-2.5 bottom-0.5 right-0.5 bg-emerald-500 ring-2 ring-background" />
+            <AvatarBadge className="right-0.5 bottom-0.5 size-2.5 bg-emerald-500 ring-2 ring-background" />
           </Avatar>
         </DropdownMenuTrigger>
 
@@ -123,7 +131,10 @@ export function ProfileMenu({
                 {profile?.email || user?.email}
               </span>
               <div className="mt-1">
-                <Badge variant="secondary" className="px-1.5 py-0 text-[10px] font-medium">
+                <Badge
+                  variant="secondary"
+                  className="px-1.5 py-0 text-[10px] font-medium"
+                >
                   {user?.role || "Event Planner"}
                 </Badge>
               </div>
@@ -154,7 +165,10 @@ export function ProfileMenu({
               <Ticket className="size-4" />
               <span>My Tickets</span>
               {user?.ticketsCount !== undefined && user.ticketsCount > 0 && (
-                <Badge variant="default" className="ml-auto rounded-full px-1.5 py-0 text-[10px]">
+                <Badge
+                  variant="default"
+                  className="ml-auto rounded-full px-1.5 py-0 text-[10px]"
+                >
                   {user.ticketsCount}
                 </Badge>
               )}
@@ -206,7 +220,9 @@ export function ProfileMenu({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => onThemeChange("system")}
-                  className={cn(theme === "system" && "bg-accent font-semibold")}
+                  className={cn(
+                    theme === "system" && "bg-accent font-semibold"
+                  )}
                 >
                   <Monitor className="size-4" />
                   <span>System</span>
@@ -248,7 +264,7 @@ export function ProfileMenu({
           avatarUrl: currentAvatarUrl,
         }}
         onSave={(updated) => {
-          saveProfile({
+          return updateUserProfile({
             name: updated.name,
             username: updated.username,
             bio: updated.bio,
@@ -261,15 +277,21 @@ export function ProfileMenu({
 
       {/* Logout Confirmation Dialog */}
       <Dialog open={isLogoutModalOpen} onOpenChange={setIsLogoutModalOpen}>
-        <DialogContent className="max-w-[380px] rounded-2xl p-6" showClose={false}>
+        <DialogContent
+          className="max-w-[380px] rounded-2xl p-6"
+          showClose={false}
+        >
           <div className="flex flex-col items-center gap-3 text-center">
             <div className="flex size-12 items-center justify-center rounded-2xl bg-destructive/15 text-destructive">
               <LogOut className="size-6" />
             </div>
             <DialogHeader className="items-center text-center">
-              <DialogTitle className="text-lg font-bold">Log out of your account?</DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground text-center">
-                You will need to sign back in to book passes, manage events, or view your saved bookmarks.
+              <DialogTitle className="text-lg font-bold">
+                Log out of your account?
+              </DialogTitle>
+              <DialogDescription className="text-center text-xs text-muted-foreground">
+                You will need to sign back in to book passes, manage events, or
+                view your saved bookmarks.
               </DialogDescription>
             </DialogHeader>
             <div className="flex w-full items-center gap-2 pt-3">
